@@ -8,6 +8,9 @@ An online Quran verse jar. Pick how you feel, or reach into the jar and pull out
 - Background nasheed while a slip is open
 - Save favourite slips (stored in your browser only)
 
+## Live site
+https://saadmohammed-cloud.github.io/read-me-when/
+
 ## Run it
 Open `index.html` in a browser. There's no build step.
 
