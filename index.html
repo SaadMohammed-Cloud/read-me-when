@@ -1,0 +1,580 @@
+<title>Read Me When</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Caveat:wght@500;700&family=Marcellus&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Layout: a physical glass jar on the left you can reach into; the slip you pull out flies across and unrolls on the right (below on phones), with your slips underneath. */
+:root{
+  --bg:#eef1ee; --table:#e2e6e1; --ink:#1f2b2a; --muted:#5b6866; --glass:rgba(255,255,255,.5); --glass-edge:rgba(31,43,42,.24); --shine:rgba(255,255,255,.55);
+  --paper:#fffdf6; --paper-ink:#24261f; --paper-muted:#6b6a60; --paper-edge:#e6dfcc; --accent:#1e6b5c; --on-accent:#f4f8f6; --twine:#b98d5a;
+  --anxious:#7fb4d9; --sad:#8b9fd6; --lonely:#b7a2dd; --angry:#e98a7a; --guilty:#d9a774; --lost:#9cc7a4; --grateful:#e8c95e; --happy:#f0a6c2;
+  --display:"Marcellus",Georgia,serif; --body:"Source Serif 4",Georgia,serif; --hand:"Caveat","Bradley Hand",cursive; --arabic:"Amiri Quran","Amiri","Geeza Pro","Traditional Arabic",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141b1a;--table:#1d2726;--ink:#e7ece9;--muted:#9aa8a5;--glass:rgba(220,240,235,.06);--glass-edge:rgba(220,240,235,.26);--shine:rgba(255,255,255,.18);--accent:#6cc4ae;--on-accent:#0f1716;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#141b1a;--table:#1d2726;--ink:#e7ece9;--muted:#9aa8a5;--glass:rgba(220,240,235,.06);--glass-edge:rgba(220,240,235,.26);--shine:rgba(255,255,255,.18);--accent:#6cc4ae;--on-accent:#0f1716;color-scheme:dark}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+.wrap{max-width:1060px;margin:0 auto;padding-inline:20px;padding-block:28px 48px;display:grid;gap:26px}
+header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,4vw,2.6rem);margin:0;letter-spacing:.01em;text-wrap:balance}
+header p{margin:0;color:var(--muted);max-width:46ch;font-size:.95rem}
+.stage{display:grid;grid-template-columns:minmax(0,350px) minmax(0,1fr);gap:36px;align-items:start}
+@media (max-width:780px){.stage{grid-template-columns:minmax(0,1fr)}}
+.left{display:grid;gap:16px;justify-items:center}
+.jarbox{position:relative;width:min(320px,84vw);aspect-ratio:3/4}
+canvas#jar{width:100%;height:100%;display:block;touch-action:none;border-radius:12px;-webkit-user-select:none;user-select:none}
+canvas#jar:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
+.label{position:absolute;left:50%;top:52%;transform:translate(-50%,-50%) rotate(-3deg);background:var(--paper);color:var(--paper-ink);border:1px solid var(--paper-edge);padding:6px 14px 5px;text-align:center;font-family:var(--hand);font-size:1.35rem;line-height:1;box-shadow:0 2px 6px rgba(0,0,0,.08);pointer-events:none;opacity:.94}
+.label small{display:block;font-family:var(--body);font-size:.58rem;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-muted);margin-top:4px}
+.hint{margin:0;font-size:.88rem;color:var(--muted);text-align:center;max-width:34ch}
+.tools{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.prompt{font-family:var(--hand);font-size:1.55rem;margin:4px 0 0;color:var(--muted)}
+.feelings{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:350px}
+.feel{appearance:none;border:1px solid var(--glass-edge);background:var(--table);color:var(--ink);font-family:var(--body);font-size:.95rem;padding:7px 12px 7px 10px;border-radius:999px;display:inline-flex;align-items:center;gap:8px;cursor:pointer;transition:transform .15s,background .15s}
+.feel:hover{transform:translateY(-1px)}
+.feel:active{transform:scale(.97)}
+.feel .dot{width:14px;height:8px;border-radius:4px;background:var(--c)}
+.feel[aria-pressed="true"]{background:var(--c);color:#1c1c1a;border-color:transparent}
+.feel[aria-pressed="true"] .dot{background:rgba(255,255,255,.6)}
+.any{font-style:italic}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+
+.right{display:grid;gap:18px;min-width:0}
+.scroll{position:relative;padding-top:8px;padding-bottom:12px;min-width:0}
+.rod{position:absolute;left:-8px;right:-8px;height:18px;border-radius:9px;background:var(--c);box-shadow:inset 0 -5px 0 rgba(0,0,0,.14),inset 0 4px 0 rgba(255,255,255,.35),0 3px 8px -3px rgba(0,0,0,.3);z-index:2;transition:background .3s}
+.rod.top{top:0}
+.rod.bottom{top:8px}
+.paper{position:relative;background:var(--paper);color:var(--paper-ink);border-inline:1px solid var(--paper-edge);padding:30px clamp(18px,4vw,40px) 26px;clip-path:inset(0 0 calc((1 - var(--p)) * 100%) 0);min-width:0}
+.tag{font-family:var(--hand);font-size:1.35rem;color:var(--paper-muted);margin:0 0 8px}
+.ar{font-family:var(--arabic);direction:rtl;text-align:right;font-size:clamp(1.55rem,3.4vw,2.05rem);line-height:2.15;margin:0 0 16px;color:#1d211c;overflow-wrap:anywhere}
+.en{font-size:1.12rem;line-height:1.6;margin:0 0 18px;max-width:60ch}
+.reflect{margin:0 0 18px;padding:12px 14px;background:color-mix(in srgb,var(--c) 18%,var(--paper));border-radius:4px;font-size:.95rem;color:var(--paper-ink)}
+.reflect span{display:block;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--paper-muted);margin-bottom:2px}
+.ref{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 16px;font-size:.82rem;color:var(--paper-muted);border-top:1px dashed var(--paper-edge);padding-top:12px}
+.ref b{font-weight:600;color:#3c3b33;font-variant-numeric:tabular-nums}
+.actions{display:flex;flex-wrap:wrap;gap:10px;transition:opacity .3s}
+.actions.off{opacity:0;pointer-events:none}
+.btn{appearance:none;font-family:var(--body);font-size:.95rem;padding:9px 16px;border-radius:6px;cursor:pointer;border:1px solid var(--glass-edge);background:transparent;color:var(--ink);text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{background:var(--table)}
+.btn:active{transform:scale(.98)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--on-accent)}
+.btn.small{font-size:.85rem;padding:7px 12px}
+.btn[aria-pressed="true"]{background:var(--table);border-color:var(--accent);color:var(--accent)}
+
+.mine{border-top:1px solid var(--glass-edge);padding-top:14px;display:grid;gap:12px}
+.tabs{display:flex;gap:4px}
+.tabs button{appearance:none;background:none;border:0;border-bottom:2px solid transparent;color:var(--muted);font-family:var(--body);font-size:.92rem;padding:4px 8px;cursor:pointer}
+.tabs button[aria-selected="true"]{color:var(--ink);border-color:var(--accent)}
+.list{display:flex;flex-wrap:wrap;gap:8px;min-height:40px}
+.chip{appearance:none;border:1px solid var(--glass-edge);background:var(--table);color:var(--ink);font-family:var(--body);font-size:.85rem;padding:6px 10px 6px 6px;border-radius:6px;display:inline-flex;gap:8px;align-items:center;cursor:pointer;font-variant-numeric:tabular-nums}
+.chip i{width:8px;align-self:stretch;border-radius:3px;background:var(--c)}
+.none{color:var(--muted);font-size:.9rem;margin:0}
+.flyer{position:fixed;left:0;top:0;border-radius:999px;pointer-events:none;z-index:50;box-shadow:0 6px 14px -6px rgba(0,0,0,.35),inset 0 3px 0 rgba(255,255,255,.35);will-change:transform,width,height}
+.sound{display:flex;flex-wrap:wrap;align-items:center;gap:10px 12px;padding:10px 12px;border:1px solid var(--glass-edge);border-radius:8px;background:color-mix(in srgb,var(--c,var(--sad)) 16%,var(--bg))}
+.sound-label{font-size:.9rem;color:var(--ink);margin-right:auto;min-width:0}
+.eq{display:inline-flex;align-items:flex-end;gap:3px;height:16px;width:22px}
+.eq i{width:3px;height:30%;border-radius:2px;background:color-mix(in srgb,var(--c,var(--sad)) 70%,var(--ink));animation:eq 1.6s ease-in-out infinite}
+.eq i:nth-child(2){animation-delay:-.5s}.eq i:nth-child(3){animation-delay:-1s}.eq i:nth-child(4){animation-delay:-.25s}
+.sound.paused .eq i{animation-play-state:paused;height:20%}
+@keyframes eq{0%,100%{height:25%}50%{height:100%}}
+label.btn{cursor:pointer}
+footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--glass-edge);padding-top:14px}
+@media (prefers-reduced-motion:reduce){.feel,.rod,.actions{transition:none}.eq i{animation:none;height:60%}}
+</style>
+
+<div class="wrap">
+  <header>
+    <h1>Read Me When…</h1>
+    <p>A jar of Quran verses. Reach in and pull out a slip, or pick how you feel and let the jar choose one for you.</p>
+  </header>
+
+  <div class="stage">
+    <div class="left">
+      <div class="jarbox">
+        <canvas id="jar" width="300" height="400" tabindex="0" aria-label="Jar of verse slips. Tap a slip to take it out, or drag it out of the jar. Press Enter to draw one."></canvas>
+        <div class="label">Read me when<small>Quran Jar</small></div>
+      </div>
+      <p class="hint">Tap any slip to take it out, or drag one out of the jar. Swipe through the jar to stir.</p>
+      <div class="tools">
+        <button class="btn small" id="shake">Shake the jar</button>
+        <button class="btn small" id="drawme">Draw one for me</button>
+      </div>
+      <p class="prompt">I'm feeling…</p>
+      <div class="feelings" id="feelings"></div>
+    </div>
+
+    <div class="right">
+      <div class="scroll" id="scroll">
+        <div class="rod top" id="rodTop"></div>
+        <div class="paper" id="paper"></div>
+        <div class="rod bottom" id="roll"></div>
+      </div>
+      <div class="sound" id="sound" hidden>
+        <span class="eq" aria-hidden="true"><i></i><i></i><i></i><i></i></span>
+        <span class="sound-label" id="soundLabel">Playing</span>
+        <button class="btn small" id="soundToggle">Pause</button>
+        <label class="btn small" for="ownTrack" id="ownLabel">Use a different nasheed</label>
+        <input type="file" id="ownTrack" accept="audio/*" hidden>
+      </div>
+      <div class="actions" id="actions"></div>
+      <div class="mine">
+        <div class="tabs" role="tablist">
+          <button role="tab" id="tab-hist" aria-selected="true">This visit</button>
+          <button role="tab" id="tab-saved" aria-selected="false">Saved</button>
+        </div>
+        <div class="list" id="list"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer>Arabic text in the Uthmani script. English translation: Sahih International. Saved slips stay in this browser only. Read any verse in its full context at quran.com.</footer>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
+<script>
+const DATA = {"anxious":[{"r":"Ar-Ra'd 13:28","ar":"ٱلَّذِينَ ءَامَنُواْ وَتَطۡمَئِنُّ قُلُوبُهُم بِذِكۡرِ ٱللَّهِۗ أَلَا بِذِكۡرِ ٱللَّهِ تَطۡمَئِنُّ ٱلۡقُلُوبُ","en":"Those who have believed and whose hearts are assured by the remembrance of Allah. Unquestionably, by the remembrance of Allah hearts are assured"},{"r":"Al-Baqarah 2:286","ar":"لَا يُكَلِّفُ ٱللَّهُ نَفۡسًا إِلَّا وُسۡعَهَاۚ لَهَا مَا كَسَبَتۡ وَعَلَيۡهَا مَا ٱكۡتَسَبَتۡۗ رَبَّنَا لَا تُؤَاخِذۡنَآ إِن نَّسِينَآ أَوۡ أَخۡطَأۡنَاۚ رَبَّنَا وَلَا تَحۡمِلۡ عَلَيۡنَآ إِصۡرٗا كَمَا حَمَلۡتَهُۥ عَلَى ٱلَّذِينَ مِن قَبۡلِنَاۚ رَبَّنَا وَلَا تُحَمِّلۡنَا مَا لَا طَاقَةَ لَنَا بِهِۦۖ وَٱعۡفُ عَنَّا وَٱغۡفِرۡ لَنَا وَٱرۡحَمۡنَآۚ أَنتَ مَوۡلَىٰنَا فَٱنصُرۡنَا عَلَى ٱلۡقَوۡمِ ٱلۡكَٰفِرِينَ","en":"Allah does not charge a soul except [with that within] its capacity. It will have [the consequence of] what [good] it has gained, and it will bear [the consequence of] what [evil] it has earned. \"Our Lord, do not impose blame upon us if we have forgotten or erred. Our Lord, and lay not upon us a burden like that which You laid upon those before us. Our Lord, and burden us not with that which we have no ability to bear. And pardon us; and forgive us; and have mercy upon us. You are our protector, so give us victory over the disbelieving people"},{"r":"At-Talaq 65:3","ar":"وَيَرۡزُقۡهُ مِنۡ حَيۡثُ لَا يَحۡتَسِبُۚ وَمَن يَتَوَكَّلۡ عَلَى ٱللَّهِ فَهُوَ حَسۡبُهُۥٓۚ إِنَّ ٱللَّهَ بَٰلِغُ أَمۡرِهِۦۚ قَدۡ جَعَلَ ٱللَّهُ لِكُلِّ شَيۡءٖ قَدۡرٗا","en":"And will provide for him from where he does not expect. And whoever relies upon Allah - then He is sufficient for him. Indeed, Allah will accomplish His purpose. Allah has already set for everything a [decreed] extent"},{"r":"Ash-Sharh 94:5","ar":"فَإِنَّ مَعَ ٱلۡعُسۡرِ يُسۡرًا","en":"For indeed, with hardship [will be] ease"},{"r":"Ash-Sharh 94:6","ar":"إِنَّ مَعَ ٱلۡعُسۡرِ يُسۡرٗا","en":"Indeed, with hardship [will be] ease"},{"r":"Ali 'Imran 3:173","ar":"ٱلَّذِينَ قَالَ لَهُمُ ٱلنَّاسُ إِنَّ ٱلنَّاسَ قَدۡ جَمَعُواْ لَكُمۡ فَٱخۡشَوۡهُمۡ فَزَادَهُمۡ إِيمَٰنٗا وَقَالُواْ حَسۡبُنَا ٱللَّهُ وَنِعۡمَ ٱلۡوَكِيلُ","en":"Those to whom hypocrites said, \"Indeed, the people have gathered against you, so fear them.\" But it [merely] increased them in faith, and they said, \"Sufficient for us is Allah, and [He is] the best Disposer of affairs"},{"r":"At-Tawbah 9:51","ar":"قُل لَّن يُصِيبَنَآ إِلَّا مَا كَتَبَ ٱللَّهُ لَنَا هُوَ مَوۡلَىٰنَاۚ وَعَلَى ٱللَّهِ فَلۡيَتَوَكَّلِ ٱلۡمُؤۡمِنُونَ","en":"Say, \"Never will we be struck except by what Allah has decreed for us; He is our protector.\" And upon Allah let the believers rely"},{"r":"Taha 20:46","ar":"قَالَ لَا تَخَافَآۖ إِنَّنِي مَعَكُمَآ أَسۡمَعُ وَأَرَىٰ","en":"[Allah] said, \"Fear not. Indeed, I am with you both; I hear and I see"},{"r":"Al-Fath 48:4","ar":"هُوَ ٱلَّذِيٓ أَنزَلَ ٱلسَّكِينَةَ فِي قُلُوبِ ٱلۡمُؤۡمِنِينَ لِيَزۡدَادُوٓاْ إِيمَٰنٗا مَّعَ إِيمَٰنِهِمۡۗ وَلِلَّهِ جُنُودُ ٱلسَّمَٰوَٰتِ وَٱلۡأَرۡضِۚ وَكَانَ ٱللَّهُ عَلِيمًا حَكِيمٗا","en":"It is He who sent down tranquillity into the hearts of the believers that they would increase in faith along with their [present] faith. And to Allah belong the soldiers of the heavens and the earth, and ever is Allah Knowing and Wise"},{"r":"Al-Baqarah 2:153","ar":"يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ ٱسۡتَعِينُواْ بِٱلصَّبۡرِ وَٱلصَّلَوٰةِۚ إِنَّ ٱللَّهَ مَعَ ٱلصَّـٰبِرِينَ","en":"O you who have believed, seek help through patience and prayer. Indeed, Allah is with the patient"},{"r":"Al-Baqarah 2:255","ar":"ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَ ٱلۡحَيُّ ٱلۡقَيُّومُۚ لَا تَأۡخُذُهُۥ سِنَةٞ وَلَا نَوۡمٞۚ لَّهُۥ مَا فِي ٱلسَّمَٰوَٰتِ وَمَا فِي ٱلۡأَرۡضِۗ مَن ذَا ٱلَّذِي يَشۡفَعُ عِندَهُۥٓ إِلَّا بِإِذۡنِهِۦۚ يَعۡلَمُ مَا بَيۡنَ أَيۡدِيهِمۡ وَمَا خَلۡفَهُمۡۖ وَلَا يُحِيطُونَ بِشَيۡءٖ مِّنۡ عِلۡمِهِۦٓ إِلَّا بِمَا شَآءَۚ وَسِعَ كُرۡسِيُّهُ ٱلسَّمَٰوَٰتِ وَٱلۡأَرۡضَۖ وَلَا يَـُٔودُهُۥ حِفۡظُهُمَاۚ وَهُوَ ٱلۡعَلِيُّ ٱلۡعَظِيمُ","en":"Allah - there is no deity except Him, the Ever-Living, the Sustainer of [all] existence. Neither drowsiness overtakes Him nor sleep. To Him belongs whatever is in the heavens and whatever is on the earth. Who is it that can intercede with Him except by His permission? He knows what is [presently] before them and what will be after them, and they encompass not a thing of His knowledge except for what He wills. His Kursi extends over the heavens and the earth, and their preservation tires Him not. And He is the Most High, the Most Great"},{"r":"At-Tawbah 9:129","ar":"فَإِن تَوَلَّوۡاْ فَقُلۡ حَسۡبِيَ ٱللَّهُ لَآ إِلَٰهَ إِلَّا هُوَۖ عَلَيۡهِ تَوَكَّلۡتُۖ وَهُوَ رَبُّ ٱلۡعَرۡشِ ٱلۡعَظِيمِ","en":"But if they turn away, [O Muhammad], say, \"Sufficient for me is Allah; there is no deity except Him. On Him I have relied, and He is the Lord of the Great Throne"},{"r":"Ali 'Imran 3:160","ar":"إِن يَنصُرۡكُمُ ٱللَّهُ فَلَا غَالِبَ لَكُمۡۖ وَإِن يَخۡذُلۡكُمۡ فَمَن ذَا ٱلَّذِي يَنصُرُكُم مِّنۢ بَعۡدِهِۦۗ وَعَلَى ٱللَّهِ فَلۡيَتَوَكَّلِ ٱلۡمُؤۡمِنُونَ","en":"If Allah should aid you, no one can overcome you; but if He should forsake you, who is there that can aid you after Him? And upon Allah let the believers rely"},{"r":"Al-Ahzab 33:3","ar":"وَتَوَكَّلۡ عَلَى ٱللَّهِۚ وَكَفَىٰ بِٱللَّهِ وَكِيلٗا","en":"And rely upon Allah; and sufficient is Allah as Disposer of affairs"},{"r":"Hud 11:6","ar":"۞وَمَا مِن دَآبَّةٖ فِي ٱلۡأَرۡضِ إِلَّا عَلَى ٱللَّهِ رِزۡقُهَا وَيَعۡلَمُ مُسۡتَقَرَّهَا وَمُسۡتَوۡدَعَهَاۚ كُلّٞ فِي كِتَٰبٖ مُّبِينٖ","en":"And there is no creature on earth but that upon Allah is its provision, and He knows its place of dwelling and place of storage. All is in a clear register"}],"sad":[{"r":"At-Tawbah 9:40","ar":"إِلَّا تَنصُرُوهُ فَقَدۡ نَصَرَهُ ٱللَّهُ إِذۡ أَخۡرَجَهُ ٱلَّذِينَ كَفَرُواْ ثَانِيَ ٱثۡنَيۡنِ إِذۡ هُمَا فِي ٱلۡغَارِ إِذۡ يَقُولُ لِصَٰحِبِهِۦ لَا تَحۡزَنۡ إِنَّ ٱللَّهَ مَعَنَاۖ فَأَنزَلَ ٱللَّهُ سَكِينَتَهُۥ عَلَيۡهِ وَأَيَّدَهُۥ بِجُنُودٖ لَّمۡ تَرَوۡهَا وَجَعَلَ كَلِمَةَ ٱلَّذِينَ كَفَرُواْ ٱلسُّفۡلَىٰۗ وَكَلِمَةُ ٱللَّهِ هِيَ ٱلۡعُلۡيَاۗ وَٱللَّهُ عَزِيزٌ حَكِيمٌ","en":"If you do not aid the Prophet - Allah has already aided him when those who disbelieved had driven him out [of Makkah] as one of two, when they were in the cave and he said to his companion, \"Do not grieve; indeed Allah is with us.\" And Allah sent down his tranquillity upon him and supported him with angels you did not see and made the word of those who disbelieved the lowest, while the word of Allah - that is the highest. And Allah is Exalted in Might and Wise"},{"r":"Yusuf 12:86","ar":"قَالَ إِنَّمَآ أَشۡكُواْ بَثِّي وَحُزۡنِيٓ إِلَى ٱللَّهِ وَأَعۡلَمُ مِنَ ٱللَّهِ مَا لَا تَعۡلَمُونَ","en":"He said, \"I only complain of my suffering and my grief to Allah, and I know from Allah that which you do not know"},{"r":"Ad-Duhaa 93:3","ar":"مَا وَدَّعَكَ رَبُّكَ وَمَا قَلَىٰ","en":"Your Lord has not taken leave of you, [O Muhammad], nor has He detested [you]"},{"r":"Ad-Duhaa 93:5","ar":"وَلَسَوۡفَ يُعۡطِيكَ رَبُّكَ فَتَرۡضَىٰٓ","en":"And your Lord is going to give you, and you will be satisfied"},{"r":"Ali 'Imran 3:139","ar":"وَلَا تَهِنُواْ وَلَا تَحۡزَنُواْ وَأَنتُمُ ٱلۡأَعۡلَوۡنَ إِن كُنتُم مُّؤۡمِنِينَ","en":"So do not weaken and do not grieve, and you will be superior if you are [true] believers"},{"r":"Yusuf 12:87","ar":"يَٰبَنِيَّ ٱذۡهَبُواْ فَتَحَسَّسُواْ مِن يُوسُفَ وَأَخِيهِ وَلَا تَاْيۡـَٔسُواْ مِن رَّوۡحِ ٱللَّهِۖ إِنَّهُۥ لَا يَاْيۡـَٔسُ مِن رَّوۡحِ ٱللَّهِ إِلَّا ٱلۡقَوۡمُ ٱلۡكَٰفِرُونَ","en":"O my sons, go and find out about Joseph and his brother and despair not of relief from Allah. Indeed, no one despairs of relief from Allah except the disbelieving people"},{"r":"Al-Baqarah 2:155","ar":"وَلَنَبۡلُوَنَّكُم بِشَيۡءٖ مِّنَ ٱلۡخَوۡفِ وَٱلۡجُوعِ وَنَقۡصٖ مِّنَ ٱلۡأَمۡوَٰلِ وَٱلۡأَنفُسِ وَٱلثَّمَرَٰتِۗ وَبَشِّرِ ٱلصَّـٰبِرِينَ","en":"And We will surely test you with something of fear and hunger and a loss of wealth and lives and fruits, but give good tidings to the patient"},{"r":"Al-Baqarah 2:156","ar":"ٱلَّذِينَ إِذَآ أَصَٰبَتۡهُم مُّصِيبَةٞ قَالُوٓاْ إِنَّا لِلَّهِ وَإِنَّآ إِلَيۡهِ رَٰجِعُونَ","en":"Who, when disaster strikes them, say, \"Indeed we belong to Allah, and indeed to Him we will return"},{"r":"Az-Zumar 39:10","ar":"قُلۡ يَٰعِبَادِ ٱلَّذِينَ ءَامَنُواْ ٱتَّقُواْ رَبَّكُمۡۚ لِلَّذِينَ أَحۡسَنُواْ فِي هَٰذِهِ ٱلدُّنۡيَا حَسَنَةٞۗ وَأَرۡضُ ٱللَّهِ وَٰسِعَةٌۗ إِنَّمَا يُوَفَّى ٱلصَّـٰبِرُونَ أَجۡرَهُم بِغَيۡرِ حِسَابٖ","en":"Say, \"O My servants who have believed, fear your Lord. For those who do good in this world is good, and the earth of Allah is spacious. Indeed, the patient will be given their reward without account"},{"r":"Maryam 19:24","ar":"فَنَادَىٰهَا مِن تَحۡتِهَآ أَلَّا تَحۡزَنِي قَدۡ جَعَلَ رَبُّكِ تَحۡتَكِ سَرِيّٗا","en":"But he called her from below her, \"Do not grieve; your Lord has provided beneath you a stream"},{"r":"Al-Ma'arij 70:5","ar":"فَٱصۡبِرۡ صَبۡرٗا جَمِيلًا","en":"So be patient with gracious patience"},{"r":"Al-Anbya 21:87","ar":"وَذَا ٱلنُّونِ إِذ ذَّهَبَ مُغَٰضِبٗا فَظَنَّ أَن لَّن نَّقۡدِرَ عَلَيۡهِ فَنَادَىٰ فِي ٱلظُّلُمَٰتِ أَن لَّآ إِلَٰهَ إِلَّآ أَنتَ سُبۡحَٰنَكَ إِنِّي كُنتُ مِنَ ٱلظَّـٰلِمِينَ","en":"And [mention] the man of the fish, when he went off in anger and thought that We would not decree [anything] upon him. And he called out within the darknesses, \"There is no deity except You; exalted are You. Indeed, I have been of the wrongdoers"},{"r":"Al-Anbya 21:88","ar":"فَٱسۡتَجَبۡنَا لَهُۥ وَنَجَّيۡنَٰهُ مِنَ ٱلۡغَمِّۚ وَكَذَٰلِكَ نُـۨجِي ٱلۡمُؤۡمِنِينَ","en":"So We responded to him and saved him from the distress. And thus do We save the believers"},{"r":"Ad-Duhaa 93:4","ar":"وَلَلۡأٓخِرَةُ خَيۡرٞ لَّكَ مِنَ ٱلۡأُولَىٰ","en":"And the Hereafter is better for you than the first [life]"},{"r":"Hud 11:115","ar":"وَٱصۡبِرۡ فَإِنَّ ٱللَّهَ لَا يُضِيعُ أَجۡرَ ٱلۡمُحۡسِنِينَ","en":"And be patient, for indeed, Allah does not allow to be lost the reward of those who do good"},{"r":"Yusuf 12:83","ar":"قَالَ بَلۡ سَوَّلَتۡ لَكُمۡ أَنفُسُكُمۡ أَمۡرٗاۖ فَصَبۡرٞ جَمِيلٌۖ عَسَى ٱللَّهُ أَن يَأۡتِيَنِي بِهِمۡ جَمِيعًاۚ إِنَّهُۥ هُوَ ٱلۡعَلِيمُ ٱلۡحَكِيمُ","en":"[Jacob] said, \"Rather, your souls have enticed you to something, so patience is most fitting. Perhaps Allah will bring them to me all together. Indeed it is He who is the Knowing, the Wise"}],"grateful":[{"r":"Ibrahim 14:7","ar":"وَإِذۡ تَأَذَّنَ رَبُّكُمۡ لَئِن شَكَرۡتُمۡ لَأَزِيدَنَّكُمۡۖ وَلَئِن كَفَرۡتُمۡ إِنَّ عَذَابِي لَشَدِيدٞ","en":"And [remember] when your Lord proclaimed, 'If you are grateful, I will surely increase you [in favor]; but if you deny, indeed, My punishment is severe"},{"r":"Al-Baqarah 2:152","ar":"فَٱذۡكُرُونِيٓ أَذۡكُرۡكُمۡ وَٱشۡكُرُواْ لِي وَلَا تَكۡفُرُونِ","en":"So remember Me; I will remember you. And be grateful to Me and do not deny Me"},{"r":"An-Nahl 16:18","ar":"وَإِن تَعُدُّواْ نِعۡمَةَ ٱللَّهِ لَا تُحۡصُوهَآۗ إِنَّ ٱللَّهَ لَغَفُورٞ رَّحِيمٞ","en":"And if you should count the favors of Allah, you could not enumerate them. Indeed, Allah is Forgiving and Merciful"},{"r":"Ar-Rahman 55:13","ar":"فَبِأَيِّ ءَالَآءِ رَبِّكُمَا تُكَذِّبَانِ","en":"So which of the favors of your Lord would you deny"},{"r":"Luqman 31:12","ar":"وَلَقَدۡ ءَاتَيۡنَا لُقۡمَٰنَ ٱلۡحِكۡمَةَ أَنِ ٱشۡكُرۡ لِلَّهِۚ وَمَن يَشۡكُرۡ فَإِنَّمَا يَشۡكُرُ لِنَفۡسِهِۦۖ وَمَن كَفَرَ فَإِنَّ ٱللَّهَ غَنِيٌّ حَمِيدٞ","en":"And We had certainly given Luqman wisdom [and said], \"Be grateful to Allah.\" And whoever is grateful is grateful for [the benefit of] himself. And whoever denies [His favor] - then indeed, Allah is Free of need and Praiseworthy"},{"r":"Ibrahim 14:34","ar":"وَءَاتَىٰكُم مِّن كُلِّ مَا سَأَلۡتُمُوهُۚ وَإِن تَعُدُّواْ نِعۡمَتَ ٱللَّهِ لَا تُحۡصُوهَآۗ إِنَّ ٱلۡإِنسَٰنَ لَظَلُومٞ كَفَّارٞ","en":"And He gave you from all you asked of Him. And if you should count the favor of Allah, you could not enumerate them. Indeed, mankind is [generally] most unjust and ungrateful"},{"r":"An-Nahl 16:53","ar":"وَمَا بِكُم مِّن نِّعۡمَةٖ فَمِنَ ٱللَّهِۖ ثُمَّ إِذَا مَسَّكُمُ ٱلضُّرُّ فَإِلَيۡهِ تَجۡـَٔرُونَ","en":"And whatever you have of favor - it is from Allah. Then when adversity touches you, to Him you cry for help"},{"r":"Ad-Duhaa 93:11","ar":"وَأَمَّا بِنِعۡمَةِ رَبِّكَ فَحَدِّثۡ","en":"But as for the favor of your Lord, report [it]"},{"r":"Al-Baqarah 2:172","ar":"يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ كُلُواْ مِن طَيِّبَٰتِ مَا رَزَقۡنَٰكُمۡ وَٱشۡكُرُواْ لِلَّهِ إِن كُنتُمۡ إِيَّاهُ تَعۡبُدُونَ","en":"O you who have believed, eat from the good things which We have provided for you and be grateful to Allah if it is [indeed] Him that you worship"},{"r":"An-Nahl 16:114","ar":"فَكُلُواْ مِمَّا رَزَقَكُمُ ٱللَّهُ حَلَٰلٗا طَيِّبٗا وَٱشۡكُرُواْ نِعۡمَتَ ٱللَّهِ إِن كُنتُمۡ إِيَّاهُ تَعۡبُدُونَ","en":"Then eat of what Allah has provided for you [which is] lawful and good. And be grateful for the favor of Allah, if it is [indeed] Him that you worship"},{"r":"Al-Fatihah 1:2","ar":"ٱلۡحَمۡدُ لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ","en":"[All] praise is [due] to Allah, Lord of the worlds"},{"r":"An-Naml 27:19","ar":"فَتَبَسَّمَ ضَاحِكٗا مِّن قَوۡلِهَا وَقَالَ رَبِّ أَوۡزِعۡنِيٓ أَنۡ أَشۡكُرَ نِعۡمَتَكَ ٱلَّتِيٓ أَنۡعَمۡتَ عَلَيَّ وَعَلَىٰ وَٰلِدَيَّ وَأَنۡ أَعۡمَلَ صَٰلِحٗا تَرۡضَىٰهُ وَأَدۡخِلۡنِي بِرَحۡمَتِكَ فِي عِبَادِكَ ٱلصَّـٰلِحِينَ","en":"So [Solomon] smiled, amused at her speech, and said, \"My Lord, enable me to be grateful for Your favor which You have bestowed upon me and upon my parents and to do righteousness of which You approve. And admit me by Your mercy into [the ranks of] Your righteous servants"},{"r":"An-Nahl 16:78","ar":"وَٱللَّهُ أَخۡرَجَكُم مِّنۢ بُطُونِ أُمَّهَٰتِكُمۡ لَا تَعۡلَمُونَ شَيۡـٔٗا وَجَعَلَ لَكُمُ ٱلسَّمۡعَ وَٱلۡأَبۡصَٰرَ وَٱلۡأَفۡـِٔدَةَ لَعَلَّكُمۡ تَشۡكُرُونَ","en":"And Allah has extracted you from the wombs of your mothers not knowing a thing, and He made for you hearing and vision and intellect that perhaps you would be grateful"},{"r":"Luqman 31:20","ar":"أَلَمۡ تَرَوۡاْ أَنَّ ٱللَّهَ سَخَّرَ لَكُم مَّا فِي ٱلسَّمَٰوَٰتِ وَمَا فِي ٱلۡأَرۡضِ وَأَسۡبَغَ عَلَيۡكُمۡ نِعَمَهُۥ ظَٰهِرَةٗ وَبَاطِنَةٗۗ وَمِنَ ٱلنَّاسِ مَن يُجَٰدِلُ فِي ٱللَّهِ بِغَيۡرِ عِلۡمٖ وَلَا هُدٗى وَلَا كِتَٰبٖ مُّنِيرٖ","en":"Do you not see that Allah has made subject to you whatever is in the heavens and whatever is in the earth and amply bestowed upon you His favors, [both] apparent and unapparent? But of the people is he who disputes about Allah without knowledge or guidance or an enlightening Book [from Him]"},{"r":"Ad-Duhaa 93:8","ar":"وَوَجَدَكَ عَآئِلٗا فَأَغۡنَىٰ","en":"And He found you poor and made [you] self-sufficient"}],"angry":[{"r":"Ali 'Imran 3:134","ar":"ٱلَّذِينَ يُنفِقُونَ فِي ٱلسَّرَّآءِ وَٱلضَّرَّآءِ وَٱلۡكَٰظِمِينَ ٱلۡغَيۡظَ وَٱلۡعَافِينَ عَنِ ٱلنَّاسِۗ وَٱللَّهُ يُحِبُّ ٱلۡمُحۡسِنِينَ","en":"Who spend [in the cause of Allah] during ease and hardship and who restrain anger and who pardon the people - and Allah loves the doers of good"},{"r":"Ash-Shuraa 42:37","ar":"وَٱلَّذِينَ يَجۡتَنِبُونَ كَبَـٰٓئِرَ ٱلۡإِثۡمِ وَٱلۡفَوَٰحِشَ وَإِذَا مَا غَضِبُواْ هُمۡ يَغۡفِرُونَ","en":"And those who avoid the major sins and immoralities, and when they are angry, they forgive"},{"r":"Fussilat 41:34","ar":"وَلَا تَسۡتَوِي ٱلۡحَسَنَةُ وَلَا ٱلسَّيِّئَةُۚ ٱدۡفَعۡ بِٱلَّتِي هِيَ أَحۡسَنُ فَإِذَا ٱلَّذِي بَيۡنَكَ وَبَيۡنَهُۥ عَدَٰوَةٞ كَأَنَّهُۥ وَلِيٌّ حَمِيمٞ","en":"And not equal are the good deed and the bad. Repel [evil] by that [deed] which is better; and thereupon the one whom between you and him is enmity [will become] as though he was a devoted friend"},{"r":"Al-A'raf 7:199","ar":"خُذِ ٱلۡعَفۡوَ وَأۡمُرۡ بِٱلۡعُرۡفِ وَأَعۡرِضۡ عَنِ ٱلۡجَٰهِلِينَ","en":"Take what is given freely, enjoin what is good, and turn away from the ignorant"},{"r":"Ash-Shuraa 42:43","ar":"وَلَمَن صَبَرَ وَغَفَرَ إِنَّ ذَٰلِكَ لَمِنۡ عَزۡمِ ٱلۡأُمُورِ","en":"And whoever is patient and forgives - indeed, that is of the matters [requiring] determination"},{"r":"Ali 'Imran 3:159","ar":"فَبِمَا رَحۡمَةٖ مِّنَ ٱللَّهِ لِنتَ لَهُمۡۖ وَلَوۡ كُنتَ فَظًّا غَلِيظَ ٱلۡقَلۡبِ لَٱنفَضُّواْ مِنۡ حَوۡلِكَۖ فَٱعۡفُ عَنۡهُمۡ وَٱسۡتَغۡفِرۡ لَهُمۡ وَشَاوِرۡهُمۡ فِي ٱلۡأَمۡرِۖ فَإِذَا عَزَمۡتَ فَتَوَكَّلۡ عَلَى ٱللَّهِۚ إِنَّ ٱللَّهَ يُحِبُّ ٱلۡمُتَوَكِّلِينَ","en":"So by mercy from Allah, [O Muhammad], you were lenient with them. And if you had been rude [in speech] and harsh in heart, they would have disbanded from about you. So pardon them and ask forgiveness for them and consult them in the matter. And when you have decided, then rely upon Allah. Indeed, Allah loves those who rely [upon Him]"},{"r":"An-Nur 24:22","ar":"وَلَا يَأۡتَلِ أُوْلُواْ ٱلۡفَضۡلِ مِنكُمۡ وَٱلسَّعَةِ أَن يُؤۡتُوٓاْ أُوْلِي ٱلۡقُرۡبَىٰ وَٱلۡمَسَٰكِينَ وَٱلۡمُهَٰجِرِينَ فِي سَبِيلِ ٱللَّهِۖ وَلۡيَعۡفُواْ وَلۡيَصۡفَحُوٓاْۗ أَلَا تُحِبُّونَ أَن يَغۡفِرَ ٱللَّهُ لَكُمۡۚ وَٱللَّهُ غَفُورٞ رَّحِيمٌ","en":"And let not those of virtue among you and wealth swear not to give [aid] to their relatives and the needy and the emigrants for the cause of Allah, and let them pardon and overlook. Would you not like that Allah should forgive you? And Allah is Forgiving and Merciful"},{"r":"Al-Furqan 25:63","ar":"وَعِبَادُ ٱلرَّحۡمَٰنِ ٱلَّذِينَ يَمۡشُونَ عَلَى ٱلۡأَرۡضِ هَوۡنٗا وَإِذَا خَاطَبَهُمُ ٱلۡجَٰهِلُونَ قَالُواْ سَلَٰمٗا","en":"And the servants of the Most Merciful are those who walk upon the earth easily, and when the ignorant address them [harshly], they say [words of] peace"},{"r":"Al-A'raf 7:200","ar":"وَإِمَّا يَنزَغَنَّكَ مِنَ ٱلشَّيۡطَٰنِ نَزۡغٞ فَٱسۡتَعِذۡ بِٱللَّهِۚ إِنَّهُۥ سَمِيعٌ عَلِيمٌ","en":"And if an evil suggestion comes to you from Satan, then seek refuge in Allah. Indeed, He is Hearing and Knowing"},{"r":"An-Nahl 16:127","ar":"وَٱصۡبِرۡ وَمَا صَبۡرُكَ إِلَّا بِٱللَّهِۚ وَلَا تَحۡزَنۡ عَلَيۡهِمۡ وَلَا تَكُ فِي ضَيۡقٖ مِّمَّا يَمۡكُرُونَ","en":"And be patient, [O Muhammad], and your patience is not but through Allah. And do not grieve over them and do not be in distress over what they conspire"},{"r":"Fussilat 41:35","ar":"وَمَا يُلَقَّىٰهَآ إِلَّا ٱلَّذِينَ صَبَرُواْ وَمَا يُلَقَّىٰهَآ إِلَّا ذُو حَظٍّ عَظِيمٖ","en":"But none is granted it except those who are patient, and none is granted it except one having a great portion [of good]"},{"r":"Al-Isra 17:53","ar":"وَقُل لِّعِبَادِي يَقُولُواْ ٱلَّتِي هِيَ أَحۡسَنُۚ إِنَّ ٱلشَّيۡطَٰنَ يَنزَغُ بَيۡنَهُمۡۚ إِنَّ ٱلشَّيۡطَٰنَ كَانَ لِلۡإِنسَٰنِ عَدُوّٗا مُّبِينٗا","en":"And tell My servants to say that which is best. Indeed, Satan induces [dissension] among them. Indeed Satan is ever, to mankind, a clear enemy"},{"r":"Al-Hujurat 49:10","ar":"إِنَّمَا ٱلۡمُؤۡمِنُونَ إِخۡوَةٞ فَأَصۡلِحُواْ بَيۡنَ أَخَوَيۡكُمۡۚ وَٱتَّقُواْ ٱللَّهَ لَعَلَّكُمۡ تُرۡحَمُونَ","en":"The believers are but brothers, so make settlement between your brothers. And fear Allah that you may receive mercy"},{"r":"Al-Ma'idah 5:8","ar":"يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ كُونُواْ قَوَّـٰمِينَ لِلَّهِ شُهَدَآءَ بِٱلۡقِسۡطِۖ وَلَا يَجۡرِمَنَّكُمۡ شَنَـَٔانُ قَوۡمٍ عَلَىٰٓ أَلَّا تَعۡدِلُواْۚ ٱعۡدِلُواْ هُوَ أَقۡرَبُ لِلتَّقۡوَىٰۖ وَٱتَّقُواْ ٱللَّهَۚ إِنَّ ٱللَّهَ خَبِيرُۢ بِمَا تَعۡمَلُونَ","en":"O you who have believed, be persistently standing firm for Allah, witnesses in justice, and do not let the hatred of a people prevent you from being just. Be just; that is nearer to righteousness. And fear Allah; indeed, Allah is Acquainted with what you do"},{"r":"Ash-Shuraa 42:40","ar":"وَجَزَـٰٓؤُاْ سَيِّئَةٖ سَيِّئَةٞ مِّثۡلُهَاۖ فَمَنۡ عَفَا وَأَصۡلَحَ فَأَجۡرُهُۥ عَلَى ٱللَّهِۚ إِنَّهُۥ لَا يُحِبُّ ٱلظَّـٰلِمِينَ","en":"And the retribution for an evil act is an evil one like it, but whoever pardons and makes reconciliation - his reward is [due] from Allah. Indeed, He does not like wrongdoers"}],"lonely":[{"r":"Al-Baqarah 2:186","ar":"وَإِذَا سَأَلَكَ عِبَادِي عَنِّي فَإِنِّي قَرِيبٌۖ أُجِيبُ دَعۡوَةَ ٱلدَّاعِ إِذَا دَعَانِۖ فَلۡيَسۡتَجِيبُواْ لِي وَلۡيُؤۡمِنُواْ بِي لَعَلَّهُمۡ يَرۡشُدُونَ","en":"And when My servants ask you, [O Muhammad], concerning Me - indeed I am near. I respond to the invocation of the supplicant when he calls upon Me. So let them respond to Me [by obedience] and believe in Me that they may be [rightly] guided"},{"r":"Qaf 50:16","ar":"وَلَقَدۡ خَلَقۡنَا ٱلۡإِنسَٰنَ وَنَعۡلَمُ مَا تُوَسۡوِسُ بِهِۦ نَفۡسُهُۥۖ وَنَحۡنُ أَقۡرَبُ إِلَيۡهِ مِنۡ حَبۡلِ ٱلۡوَرِيدِ","en":"And We have already created man and know what his soul whispers to him, and We are closer to him than [his] jugular vein"},{"r":"Az-Zumar 39:36","ar":"أَلَيۡسَ ٱللَّهُ بِكَافٍ عَبۡدَهُۥۖ وَيُخَوِّفُونَكَ بِٱلَّذِينَ مِن دُونِهِۦۚ وَمَن يُضۡلِلِ ٱللَّهُ فَمَا لَهُۥ مِنۡ هَادٖ","en":"Is not Allah sufficient for His Servant [Prophet Muhammad]? And [yet], they threaten you with those [they worship] other than Him. And whoever Allah leaves astray - for him there is no guide"},{"r":"Taha 20:46","ar":"قَالَ لَا تَخَافَآۖ إِنَّنِي مَعَكُمَآ أَسۡمَعُ وَأَرَىٰ","en":"[Allah] said, \"Fear not. Indeed, I am with you both; I hear and I see"},{"r":"Al-Mujadila 58:7","ar":"أَلَمۡ تَرَ أَنَّ ٱللَّهَ يَعۡلَمُ مَا فِي ٱلسَّمَٰوَٰتِ وَمَا فِي ٱلۡأَرۡضِۖ مَا يَكُونُ مِن نَّجۡوَىٰ ثَلَٰثَةٍ إِلَّا هُوَ رَابِعُهُمۡ وَلَا خَمۡسَةٍ إِلَّا هُوَ سَادِسُهُمۡ وَلَآ أَدۡنَىٰ مِن ذَٰلِكَ وَلَآ أَكۡثَرَ إِلَّا هُوَ مَعَهُمۡ أَيۡنَ مَا كَانُواْۖ ثُمَّ يُنَبِّئُهُم بِمَا عَمِلُواْ يَوۡمَ ٱلۡقِيَٰمَةِۚ إِنَّ ٱللَّهَ بِكُلِّ شَيۡءٍ عَلِيمٌ","en":"Have you not considered that Allah knows what is in the heavens and what is on the earth? There is in no private conversation three but that He is the fourth of them, nor are there five but that He is the sixth of them - and no less than that and no more except that He is with them [in knowledge] wherever they are. Then He will inform them of what they did, on the Day of Resurrection. Indeed Allah is, of all things, Knowing"},{"r":"Ghafir 40:60","ar":"وَقَالَ رَبُّكُمُ ٱدۡعُونِيٓ أَسۡتَجِبۡ لَكُمۡۚ إِنَّ ٱلَّذِينَ يَسۡتَكۡبِرُونَ عَنۡ عِبَادَتِي سَيَدۡخُلُونَ جَهَنَّمَ دَاخِرِينَ","en":"And your Lord says, \"Call upon Me; I will respond to you.\" Indeed, those who disdain My worship will enter Hell [rendered] contemptible"},{"r":"Ali 'Imran 3:173","ar":"ٱلَّذِينَ قَالَ لَهُمُ ٱلنَّاسُ إِنَّ ٱلنَّاسَ قَدۡ جَمَعُواْ لَكُمۡ فَٱخۡشَوۡهُمۡ فَزَادَهُمۡ إِيمَٰنٗا وَقَالُواْ حَسۡبُنَا ٱللَّهُ وَنِعۡمَ ٱلۡوَكِيلُ","en":"Those to whom hypocrites said, \"Indeed, the people have gathered against you, so fear them.\" But it [merely] increased them in faith, and they said, \"Sufficient for us is Allah, and [He is] the best Disposer of affairs"},{"r":"Ash-Shu'ara 26:62","ar":"قَالَ كَلَّآۖ إِنَّ مَعِيَ رَبِّي سَيَهۡدِينِ","en":"[Moses] said, \"No! Indeed, with me is my Lord; He will guide me"},{"r":"Al-Baqarah 2:152","ar":"فَٱذۡكُرُونِيٓ أَذۡكُرۡكُمۡ وَٱشۡكُرُواْ لِي وَلَا تَكۡفُرُونِ","en":"So remember Me; I will remember you. And be grateful to Me and do not deny Me"},{"r":"Al-Baqarah 2:115","ar":"وَلِلَّهِ ٱلۡمَشۡرِقُ وَٱلۡمَغۡرِبُۚ فَأَيۡنَمَا تُوَلُّواْ فَثَمَّ وَجۡهُ ٱللَّهِۚ إِنَّ ٱللَّهَ وَٰسِعٌ عَلِيمٞ","en":"And to Allah belongs the east and the west. So wherever you [might] turn, there is the Face of Allah. Indeed, Allah is all-Encompassing and Knowing"},{"r":"Ash-Sharh 94:5","ar":"فَإِنَّ مَعَ ٱلۡعُسۡرِ يُسۡرًا","en":"For indeed, with hardship [will be] ease"},{"r":"At-Tur 52:48","ar":"وَٱصۡبِرۡ لِحُكۡمِ رَبِّكَ فَإِنَّكَ بِأَعۡيُنِنَاۖ وَسَبِّحۡ بِحَمۡدِ رَبِّكَ حِينَ تَقُومُ","en":"And be patient, [O Muhammad], for the decision of your Lord, for indeed, you are in Our eyes. And exalt [Allah] with praise of your Lord when you arise"},{"r":"An-Nisa 4:45","ar":"وَٱللَّهُ أَعۡلَمُ بِأَعۡدَآئِكُمۡۚ وَكَفَىٰ بِٱللَّهِ وَلِيّٗا وَكَفَىٰ بِٱللَّهِ نَصِيرٗا","en":"And Allah is most knowing of your enemies; and sufficient is Allah as an ally, and sufficient is Allah as a helper"},{"r":"Al-Anfal 8:40","ar":"وَإِن تَوَلَّوۡاْ فَٱعۡلَمُوٓاْ أَنَّ ٱللَّهَ مَوۡلَىٰكُمۡۚ نِعۡمَ ٱلۡمَوۡلَىٰ وَنِعۡمَ ٱلنَّصِيرُ","en":"But if they turn away - then know that Allah is your protector. Excellent is the protector, and Excellent is the helper"},{"r":"Ash-Shuraa 42:19","ar":"ٱللَّهُ لَطِيفُۢ بِعِبَادِهِۦ يَرۡزُقُ مَن يَشَآءُۖ وَهُوَ ٱلۡقَوِيُّ ٱلۡعَزِيزُ","en":"Allah is Subtle with His servants; He gives provisions to whom He wills. And He is the Powerful, the Exalted in Might"},{"r":"An-Nahl 16:128","ar":"إِنَّ ٱللَّهَ مَعَ ٱلَّذِينَ ٱتَّقَواْ وَّٱلَّذِينَ هُم مُّحۡسِنُونَ","en":"Indeed, Allah is with those who fear Him and those who are doers of good"},{"r":"Maryam 19:96","ar":"إِنَّ ٱلَّذِينَ ءَامَنُواْ وَعَمِلُواْ ٱلصَّـٰلِحَٰتِ سَيَجۡعَلُ لَهُمُ ٱلرَّحۡمَٰنُ وُدّٗا","en":"Indeed, those who have believed and done righteous deeds - the Most Merciful will appoint for them affection"}],"lost":[{"r":"Al-Fatihah 1:6","ar":"ٱهۡدِنَا ٱلصِّرَٰطَ ٱلۡمُسۡتَقِيمَ","en":"Guide us to the straight path"},{"r":"Ad-Duhaa 93:7","ar":"وَوَجَدَكَ ضَآلّٗا فَهَدَىٰ","en":"And He found you lost and guided [you]"},{"r":"Al-Baqarah 2:2","ar":"ذَٰلِكَ ٱلۡكِتَٰبُ لَا رَيۡبَۛ فِيهِۛ هُدٗى لِّلۡمُتَّقِينَ","en":"This is the Book about which there is no doubt, a guidance for those conscious of Allah"},{"r":"Al-An'am 6:162","ar":"قُلۡ إِنَّ صَلَاتِي وَنُسُكِي وَمَحۡيَايَ وَمَمَاتِي لِلَّهِ رَبِّ ٱلۡعَٰلَمِينَ","en":"Say, \"Indeed, my prayer, my rites of sacrifice, my living and my dying are for Allah, Lord of the worlds"},{"r":"Al-'Ankabut 29:69","ar":"وَٱلَّذِينَ جَٰهَدُواْ فِينَا لَنَهۡدِيَنَّهُمۡ سُبُلَنَاۚ وَإِنَّ ٱللَّهَ لَمَعَ ٱلۡمُحۡسِنِينَ","en":"And those who strive for Us - We will surely guide them to Our ways. And indeed, Allah is with the doers of good"},{"r":"Ash-Shuraa 42:52","ar":"وَكَذَٰلِكَ أَوۡحَيۡنَآ إِلَيۡكَ رُوحٗا مِّنۡ أَمۡرِنَاۚ مَا كُنتَ تَدۡرِي مَا ٱلۡكِتَٰبُ وَلَا ٱلۡإِيمَٰنُ وَلَٰكِن جَعَلۡنَٰهُ نُورٗا نَّهۡدِي بِهِۦ مَن نَّشَآءُ مِنۡ عِبَادِنَاۚ وَإِنَّكَ لَتَهۡدِيٓ إِلَىٰ صِرَٰطٖ مُّسۡتَقِيمٖ","en":"And thus We have revealed to you an inspiration of Our command. You did not know what is the Book or [what is] faith, but We have made it a light by which We guide whom We will of Our servants. And indeed, [O Muhammad], you guide to a straight path"},{"r":"At-Taghabun 64:11","ar":"مَآ أَصَابَ مِن مُّصِيبَةٍ إِلَّا بِإِذۡنِ ٱللَّهِۗ وَمَن يُؤۡمِنۢ بِٱللَّهِ يَهۡدِ قَلۡبَهُۥۚ وَٱللَّهُ بِكُلِّ شَيۡءٍ عَلِيمٞ","en":"No disaster strikes except by permission of Allah. And whoever believes in Allah - He will guide his heart. And Allah is Knowing of all things"},{"r":"Al-Isra 17:9","ar":"إِنَّ هَٰذَا ٱلۡقُرۡءَانَ يَهۡدِي لِلَّتِي هِيَ أَقۡوَمُ وَيُبَشِّرُ ٱلۡمُؤۡمِنِينَ ٱلَّذِينَ يَعۡمَلُونَ ٱلصَّـٰلِحَٰتِ أَنَّ لَهُمۡ أَجۡرٗا كَبِيرٗا","en":"Indeed, this Qur'an guides to that which is most suitable and gives good tidings to the believers who do righteous deeds that they will have a great reward"},{"r":"Ali 'Imran 3:8","ar":"رَبَّنَا لَا تُزِغۡ قُلُوبَنَا بَعۡدَ إِذۡ هَدَيۡتَنَا وَهَبۡ لَنَا مِن لَّدُنكَ رَحۡمَةًۚ إِنَّكَ أَنتَ ٱلۡوَهَّابُ","en":"[Who say], \"Our Lord, let not our hearts deviate after You have guided us and grant us from Yourself mercy. Indeed, You are the Bestower"},{"r":"Taha 20:25","ar":"قَالَ رَبِّ ٱشۡرَحۡ لِي صَدۡرِي","en":"[Moses] said, \"My Lord, expand for me my breast [with assurance]"},{"r":"Al-Qasas 28:22","ar":"وَلَمَّا تَوَجَّهَ تِلۡقَآءَ مَدۡيَنَ قَالَ عَسَىٰ رَبِّيٓ أَن يَهۡدِيَنِي سَوَآءَ ٱلسَّبِيلِ","en":"And when he directed himself toward Madyan, he said, \"Perhaps my Lord will guide me to the sound way"},{"r":"Ghafir 40:44","ar":"فَسَتَذۡكُرُونَ مَآ أَقُولُ لَكُمۡۚ وَأُفَوِّضُ أَمۡرِيٓ إِلَى ٱللَّهِۚ إِنَّ ٱللَّهَ بَصِيرُۢ بِٱلۡعِبَادِ","en":"And you will remember what I [now] say to you, and I entrust my affair to Allah. Indeed, Allah is Seeing of [His] servants"},{"r":"Al-Kahf 18:10","ar":"إِذۡ أَوَى ٱلۡفِتۡيَةُ إِلَى ٱلۡكَهۡفِ فَقَالُواْ رَبَّنَآ ءَاتِنَا مِن لَّدُنكَ رَحۡمَةٗ وَهَيِّئۡ لَنَا مِنۡ أَمۡرِنَا رَشَدٗا","en":"[Mention] when the youths retreated to the cave and said, \"Our Lord, grant us from Yourself mercy and prepare for us from our affair right guidance"},{"r":"Ar-Ra'd 13:11","ar":"لَهُۥ مُعَقِّبَٰتٞ مِّنۢ بَيۡنِ يَدَيۡهِ وَمِنۡ خَلۡفِهِۦ يَحۡفَظُونَهُۥ مِنۡ أَمۡرِ ٱللَّهِۗ إِنَّ ٱللَّهَ لَا يُغَيِّرُ مَا بِقَوۡمٍ حَتَّىٰ يُغَيِّرُواْ مَا بِأَنفُسِهِمۡۗ وَإِذَآ أَرَادَ ٱللَّهُ بِقَوۡمٖ سُوٓءٗا فَلَا مَرَدَّ لَهُۥۚ وَمَا لَهُم مِّن دُونِهِۦ مِن وَالٍ","en":"For each one are successive [angels] before and behind him who protect him by the decree of Allah. Indeed, Allah will not change the condition of a people until they change what is in themselves. And when Allah intends for a people ill, there is no repelling it. And there is not for them besides Him any patron"},{"r":"Al-Baqarah 2:269","ar":"يُؤۡتِي ٱلۡحِكۡمَةَ مَن يَشَآءُۚ وَمَن يُؤۡتَ ٱلۡحِكۡمَةَ فَقَدۡ أُوتِيَ خَيۡرٗا كَثِيرٗاۗ وَمَا يَذَّكَّرُ إِلَّآ أُوْلُواْ ٱلۡأَلۡبَٰبِ","en":"He gives wisdom to whom He wills, and whoever has been given wisdom has certainly been given much good. And none will remember except those of understanding"},{"r":"Al-An'am 6:153","ar":"وَأَنَّ هَٰذَا صِرَٰطِي مُسۡتَقِيمٗا فَٱتَّبِعُوهُۖ وَلَا تَتَّبِعُواْ ٱلسُّبُلَ فَتَفَرَّقَ بِكُمۡ عَن سَبِيلِهِۦۚ ذَٰلِكُمۡ وَصَّىٰكُم بِهِۦ لَعَلَّكُمۡ تَتَّقُونَ","en":"And, [moreover], this is My path, which is straight, so follow it; and do not follow [other] ways, for you will be separated from His way. This has He instructed you that you may become righteous"}],"guilty":[{"r":"Az-Zumar 39:53","ar":"۞قُلۡ يَٰعِبَادِيَ ٱلَّذِينَ أَسۡرَفُواْ عَلَىٰٓ أَنفُسِهِمۡ لَا تَقۡنَطُواْ مِن رَّحۡمَةِ ٱللَّهِۚ إِنَّ ٱللَّهَ يَغۡفِرُ ٱلذُّنُوبَ جَمِيعًاۚ إِنَّهُۥ هُوَ ٱلۡغَفُورُ ٱلرَّحِيمُ","en":"Say, \"O My servants who have transgressed against themselves [by sinning], do not despair of the mercy of Allah. Indeed, Allah forgives all sins. Indeed, it is He who is the Forgiving, the Merciful"},{"r":"An-Nisa 4:110","ar":"وَمَن يَعۡمَلۡ سُوٓءًا أَوۡ يَظۡلِمۡ نَفۡسَهُۥ ثُمَّ يَسۡتَغۡفِرِ ٱللَّهَ يَجِدِ ٱللَّهَ غَفُورٗا رَّحِيمٗا","en":"And whoever does a wrong or wrongs himself but then seeks forgiveness of Allah will find Allah Forgiving and Merciful"},{"r":"Al-Furqan 25:70","ar":"إِلَّا مَن تَابَ وَءَامَنَ وَعَمِلَ عَمَلٗا صَٰلِحٗا فَأُوْلَـٰٓئِكَ يُبَدِّلُ ٱللَّهُ سَيِّـَٔاتِهِمۡ حَسَنَٰتٖۗ وَكَانَ ٱللَّهُ غَفُورٗا رَّحِيمٗا","en":"Except for those who repent, believe and do righteous work. For them Allah will replace their evil deeds with good. And ever is Allah Forgiving and Merciful"},{"r":"Ali 'Imran 3:135","ar":"وَٱلَّذِينَ إِذَا فَعَلُواْ فَٰحِشَةً أَوۡ ظَلَمُوٓاْ أَنفُسَهُمۡ ذَكَرُواْ ٱللَّهَ فَٱسۡتَغۡفَرُواْ لِذُنُوبِهِمۡ وَمَن يَغۡفِرُ ٱلذُّنُوبَ إِلَّا ٱللَّهُ وَلَمۡ يُصِرُّواْ عَلَىٰ مَا فَعَلُواْ وَهُمۡ يَعۡلَمُونَ","en":"And those who, when they commit an immorality or wrong themselves [by transgression], remember Allah and seek forgiveness for their sins - and who can forgive sins except Allah? - and [who] do not persist in what they have done while they know"},{"r":"At-Tahrim 66:8","ar":"يَـٰٓأَيُّهَا ٱلَّذِينَ ءَامَنُواْ تُوبُوٓاْ إِلَى ٱللَّهِ تَوۡبَةٗ نَّصُوحًا عَسَىٰ رَبُّكُمۡ أَن يُكَفِّرَ عَنكُمۡ سَيِّـَٔاتِكُمۡ وَيُدۡخِلَكُمۡ جَنَّـٰتٖ تَجۡرِي مِن تَحۡتِهَا ٱلۡأَنۡهَٰرُ يَوۡمَ لَا يُخۡزِي ٱللَّهُ ٱلنَّبِيَّ وَٱلَّذِينَ ءَامَنُواْ مَعَهُۥۖ نُورُهُمۡ يَسۡعَىٰ بَيۡنَ أَيۡدِيهِمۡ وَبِأَيۡمَٰنِهِمۡ يَقُولُونَ رَبَّنَآ أَتۡمِمۡ لَنَا نُورَنَا وَٱغۡفِرۡ لَنَآۖ إِنَّكَ عَلَىٰ كُلِّ شَيۡءٖ قَدِيرٞ","en":"O you who have believed, repent to Allah with sincere repentance. Perhaps your Lord will remove from you your misdeeds and admit you into gardens beneath which rivers flow [on] the Day when Allah will not disgrace the Prophet and those who believed with him. Their light will proceed before them and on their right; they will say, \"Our Lord, perfect for us our light and forgive us. Indeed, You are over all things competent"},{"r":"Hud 11:114","ar":"وَأَقِمِ ٱلصَّلَوٰةَ طَرَفَيِ ٱلنَّهَارِ وَزُلَفٗا مِّنَ ٱلَّيۡلِۚ إِنَّ ٱلۡحَسَنَٰتِ يُذۡهِبۡنَ ٱلسَّيِّـَٔاتِۚ ذَٰلِكَ ذِكۡرَىٰ لِلذَّـٰكِرِينَ","en":"And establish prayer at the two ends of the day and at the approach of the night. Indeed, good deeds do away with misdeeds. That is a reminder for those who remember"},{"r":"Nuh 71:10","ar":"فَقُلۡتُ ٱسۡتَغۡفِرُواْ رَبَّكُمۡ إِنَّهُۥ كَانَ غَفَّارٗا","en":"And said, 'Ask forgiveness of your Lord. Indeed, He is ever a Perpetual Forgiver"},{"r":"An-Nisa 4:17","ar":"إِنَّمَا ٱلتَّوۡبَةُ عَلَى ٱللَّهِ لِلَّذِينَ يَعۡمَلُونَ ٱلسُّوٓءَ بِجَهَٰلَةٖ ثُمَّ يَتُوبُونَ مِن قَرِيبٖ فَأُوْلَـٰٓئِكَ يَتُوبُ ٱللَّهُ عَلَيۡهِمۡۗ وَكَانَ ٱللَّهُ عَلِيمًا حَكِيمٗا","en":"The repentance accepted by Allah is only for those who do wrong in ignorance [or carelessness] and then repent soon after. It is those to whom Allah will turn in forgiveness, and Allah is ever Knowing and Wise"},{"r":"Al-A'raf 7:23","ar":"قَالَا رَبَّنَا ظَلَمۡنَآ أَنفُسَنَا وَإِن لَّمۡ تَغۡفِرۡ لَنَا وَتَرۡحَمۡنَا لَنَكُونَنَّ مِنَ ٱلۡخَٰسِرِينَ","en":"They said, \"Our Lord, we have wronged ourselves, and if You do not forgive us and have mercy upon us, we will surely be among the losers"},{"r":"Al-Hijr 15:49","ar":"۞نَبِّئۡ عِبَادِيٓ أَنِّيٓ أَنَا ٱلۡغَفُورُ ٱلرَّحِيمُ","en":"[O Muhammad], inform My servants that it is I who am the Forgiving, the Merciful"},{"r":"Al-An'am 6:54","ar":"وَإِذَا جَآءَكَ ٱلَّذِينَ يُؤۡمِنُونَ بِـَٔايَٰتِنَا فَقُلۡ سَلَٰمٌ عَلَيۡكُمۡۖ كَتَبَ رَبُّكُمۡ عَلَىٰ نَفۡسِهِ ٱلرَّحۡمَةَ أَنَّهُۥ مَنۡ عَمِلَ مِنكُمۡ سُوٓءَۢا بِجَهَٰلَةٖ ثُمَّ تَابَ مِنۢ بَعۡدِهِۦ وَأَصۡلَحَ فَأَنَّهُۥ غَفُورٞ رَّحِيمٞ","en":"And when those come to you who believe in Our verses, say, \"Peace be upon you. Your Lord has decreed upon Himself mercy: that any of you who does wrong out of ignorance and then repents after that and corrects himself - indeed, He is Forgiving and Merciful"},{"r":"Al-A'raf 7:156","ar":"۞وَٱكۡتُبۡ لَنَا فِي هَٰذِهِ ٱلدُّنۡيَا حَسَنَةٗ وَفِي ٱلۡأٓخِرَةِ إِنَّا هُدۡنَآ إِلَيۡكَۚ قَالَ عَذَابِيٓ أُصِيبُ بِهِۦ مَنۡ أَشَآءُۖ وَرَحۡمَتِي وَسِعَتۡ كُلَّ شَيۡءٖۚ فَسَأَكۡتُبُهَا لِلَّذِينَ يَتَّقُونَ وَيُؤۡتُونَ ٱلزَّكَوٰةَ وَٱلَّذِينَ هُم بِـَٔايَٰتِنَا يُؤۡمِنُونَ","en":"And decree for us in this world [that which is] good and [also] in the Hereafter; indeed, we have turned back to You.\" [Allah] said, \"My punishment - I afflict with it whom I will, but My mercy encompasses all things.\" So I will decree it [especially] for those who fear Me and give zakah and those who believe in Our verses"},{"r":"Taha 20:82","ar":"وَإِنِّي لَغَفَّارٞ لِّمَن تَابَ وَءَامَنَ وَعَمِلَ صَٰلِحٗا ثُمَّ ٱهۡتَدَىٰ","en":"But indeed, I am the Perpetual Forgiver of whoever repents and believes and does righteousness and then continues in guidance"},{"r":"Ali 'Imran 3:133","ar":"۞وَسَارِعُوٓاْ إِلَىٰ مَغۡفِرَةٖ مِّن رَّبِّكُمۡ وَجَنَّةٍ عَرۡضُهَا ٱلسَّمَٰوَٰتُ وَٱلۡأَرۡضُ أُعِدَّتۡ لِلۡمُتَّقِينَ","en":"And hasten to forgiveness from your Lord and a garden as wide as the heavens and earth, prepared for the righteous"},{"r":"Ali 'Imran 3:31","ar":"قُلۡ إِن كُنتُمۡ تُحِبُّونَ ٱللَّهَ فَٱتَّبِعُونِي يُحۡبِبۡكُمُ ٱللَّهُ وَيَغۡفِرۡ لَكُمۡ ذُنُوبَكُمۡۚ وَٱللَّهُ غَفُورٞ رَّحِيمٞ","en":"Say, [O Muhammad], \"If you should love Allah, then follow me, [so] Allah will love you and forgive you your sins. And Allah is Forgiving and Merciful"},{"r":"Ash-Shuraa 42:25","ar":"وَهُوَ ٱلَّذِي يَقۡبَلُ ٱلتَّوۡبَةَ عَنۡ عِبَادِهِۦ وَيَعۡفُواْ عَنِ ٱلسَّيِّـَٔاتِ وَيَعۡلَمُ مَا تَفۡعَلُونَ","en":"And it is He who accepts repentance from his servants and pardons misdeeds, and He knows what you do"}],"happy":[{"r":"Yunus 10:58","ar":"قُلۡ بِفَضۡلِ ٱللَّهِ وَبِرَحۡمَتِهِۦ فَبِذَٰلِكَ فَلۡيَفۡرَحُواْ هُوَ خَيۡرٞ مِّمَّا يَجۡمَعُونَ","en":"Say, \"In the bounty of Allah and in His mercy - in that let them rejoice; it is better than what they accumulate"},{"r":"Ar-Rum 30:21","ar":"وَمِنۡ ءَايَٰتِهِۦٓ أَنۡ خَلَقَ لَكُم مِّنۡ أَنفُسِكُمۡ أَزۡوَٰجٗا لِّتَسۡكُنُوٓاْ إِلَيۡهَا وَجَعَلَ بَيۡنَكُم مَّوَدَّةٗ وَرَحۡمَةًۚ إِنَّ فِي ذَٰلِكَ لَأٓيَٰتٖ لِّقَوۡمٖ يَتَفَكَّرُونَ","en":"And of His signs is that He created for you from yourselves mates that you may find tranquillity in them; and He placed between you affection and mercy. Indeed in that are signs for a people who give thought"},{"r":"Yunus 10:62","ar":"أَلَآ إِنَّ أَوۡلِيَآءَ ٱللَّهِ لَا خَوۡفٌ عَلَيۡهِمۡ وَلَا هُمۡ يَحۡزَنُونَ","en":"Unquestionably, [for] the allies of Allah there will be no fear concerning them, nor will they grieve"},{"r":"An-Nahl 16:97","ar":"مَنۡ عَمِلَ صَٰلِحٗا مِّن ذَكَرٍ أَوۡ أُنثَىٰ وَهُوَ مُؤۡمِنٞ فَلَنُحۡيِيَنَّهُۥ حَيَوٰةٗ طَيِّبَةٗۖ وَلَنَجۡزِيَنَّهُمۡ أَجۡرَهُم بِأَحۡسَنِ مَا كَانُواْ يَعۡمَلُونَ","en":"Whoever does righteousness, whether male or female, while he is a believer - We will surely cause him to live a good life, and We will surely give them their reward [in the Hereafter] according to the best of what they used to do"},{"r":"Ar-Rahman 55:60","ar":"هَلۡ جَزَآءُ ٱلۡإِحۡسَٰنِ إِلَّا ٱلۡإِحۡسَٰنُ","en":"Is the reward for good [anything] but good"},{"r":"Ar-Ra'd 13:29","ar":"ٱلَّذِينَ ءَامَنُواْ وَعَمِلُواْ ٱلصَّـٰلِحَٰتِ طُوبَىٰ لَهُمۡ وَحُسۡنُ مَـَٔابٖ","en":"Those who have believed and done righteous deeds - a good state is theirs and a good return"},{"r":"Al-Fajr 89:27","ar":"يَـٰٓأَيَّتُهَا ٱلنَّفۡسُ ٱلۡمُطۡمَئِنَّةُ","en":"[To the righteous it will be said], \"O reassured soul"},{"r":"Al-Fajr 89:28","ar":"ٱرۡجِعِيٓ إِلَىٰ رَبِّكِ رَاضِيَةٗ مَّرۡضِيَّةٗ","en":"Return to your Lord, well-pleased and pleasing [to Him]"},{"r":"Al-Baqarah 2:201","ar":"وَمِنۡهُم مَّن يَقُولُ رَبَّنَآ ءَاتِنَا فِي ٱلدُّنۡيَا حَسَنَةٗ وَفِي ٱلۡأٓخِرَةِ حَسَنَةٗ وَقِنَا عَذَابَ ٱلنَّارِ","en":"But among them is he who says, \"Our Lord, give us in this world [that which is] good and in the Hereafter [that which is] good and protect us from the punishment of the Fire"},{"r":"Ad-Duhaa 93:5","ar":"وَلَسَوۡفَ يُعۡطِيكَ رَبُّكَ فَتَرۡضَىٰٓ","en":"And your Lord is going to give you, and you will be satisfied"},{"r":"Ash-Sharh 94:1","ar":"أَلَمۡ نَشۡرَحۡ لَكَ صَدۡرَكَ","en":"Did We not expand for you, [O Muhammad], your breast"},{"r":"Yunus 10:57","ar":"يَـٰٓأَيُّهَا ٱلنَّاسُ قَدۡ جَآءَتۡكُم مَّوۡعِظَةٞ مِّن رَّبِّكُمۡ وَشِفَآءٞ لِّمَا فِي ٱلصُّدُورِ وَهُدٗى وَرَحۡمَةٞ لِّلۡمُؤۡمِنِينَ","en":"O mankind, there has to come to you instruction from your Lord and healing for what is in the breasts and guidance and mercy for the believers"},{"r":"Al-Hadid 57:23","ar":"لِّكَيۡلَا تَأۡسَوۡاْ عَلَىٰ مَا فَاتَكُمۡ وَلَا تَفۡرَحُواْ بِمَآ ءَاتَىٰكُمۡۗ وَٱللَّهُ لَا يُحِبُّ كُلَّ مُخۡتَالٖ فَخُورٍ","en":"In order that you not despair over what has eluded you and not exult [in pride] over what He has given you. And Allah does not like everyone self-deluded and boastful"},{"r":"Ya-Sin 36:58","ar":"سَلَٰمٞ قَوۡلٗا مِّن رَّبّٖ رَّحِيمٖ","en":"[And] \"Peace,\" a word from a Merciful Lord"},{"r":"Az-Zalzalah 99:7","ar":"فَمَن يَعۡمَلۡ مِثۡقَالَ ذَرَّةٍ خَيۡرٗا يَرَهُۥ","en":"So whoever does an atom's weight of good will see it"}]};
+const FEEL = [["anxious","Anxious"],["sad","Sad"],["lonely","Lonely"],["angry","Angry"],["guilty","Guilty"],["lost","Lost"],["grateful","Grateful"],["happy","Happy"]];
+const KEYS = FEEL.map(f=>f[0]);
+const NAME = Object.fromEntries(FEEL);
+const REFLECT = {
+  anxious:"Name the worry. Which part is in your hands, and which part can you leave with Allah?",
+  sad:"Let the feeling be there for a moment. What would you ask Allah for right now?",
+  lonely:"Say one thing to Allah right now, the way you would to someone sitting beside you.",
+  angry:"Before you reply to anyone, what would holding back look like here?",
+  guilty:"What is one small thing you can do today to set it right?",
+  lost:"What is one next step you are sure of, even if the rest isn't clear yet?",
+  grateful:"Name three things from today that you didn't earn.",
+  happy:"Who could you share this good feeling with today?"
+};
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const store = {
+  get(k,d){ try{ const v=localStorage.getItem(k); return v?JSON.parse(v):d; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+};
+const ease = k => k<.5 ? 4*k*k*k : 1-Math.pow(-2*k+2,3)/2;
+
+/* ---------- state ---------- */
+let current = null;
+const seen = {};
+let history = [];
+let saved = store.get("rmw-saved", []);
+let tab = "hist";
+let busy = false;   // a slip is on its way out
+
+function pickIndex(k){
+  const list = DATA[k]; seen[k] = seen[k] || [];
+  if (seen[k].length >= list.length) seen[k] = [];
+  let i; do { i = Math.floor(Math.random()*list.length); } while (seen[k].includes(i));
+  seen[k].push(i); return i;
+}
+
+/* ---------- feelings ---------- */
+const fe = document.getElementById("feelings");
+function chip(id,label,color,cls){
+  const b=document.createElement("button"); b.className="feel"+(cls?" "+cls:""); b.id=id;
+  b.style.setProperty("--c",color); b.setAttribute("aria-pressed","false");
+  b.innerHTML=`<span class="dot"></span>${label}`; fe.appendChild(b); return b;
+}
+FEEL.forEach(([k,l])=>chip("f-"+k,l,`var(--${k})`).onclick=()=>{ if(busy) return; select(k); hop(k); setTimeout(()=>takeOne(k), reduce?0:380); });
+chip("f-any","Surprise me","var(--twine)","any").onclick=()=>{ if(busy) return; select(null); takeOne(null); };
+function select(k){
+  current=k;
+  document.querySelectorAll(".feel").forEach(b=>b.setAttribute("aria-pressed",String(b.id===(k?"f-"+k:"f-any"))));
+}
+
+/* ---------- physics jar ---------- */
+const {Engine,Bodies,Body,Composite,Sleeping} = Matter;
+const VW=300, VH=400, SW=40, SH=13;
+const engine = Engine.create({enableSleeping:true}); engine.gravity.y = 1; engine.positionIterations = 8;
+const world = engine.world;
+const P = { nl:[96,36], ns:[96,98], ls:[36,134], lb:[36,390], rb:[264,390], rs:[264,134], nsr:[204,98], nr:[204,36] };
+function wall(a,b,nx,ny){
+  const t=40, ext=16;
+  const len=Math.hypot(b[0]-a[0],b[1]-a[1])+ext*2, ang=Math.atan2(b[1]-a[1],b[0]-a[0]);
+  return Bodies.rectangle((a[0]+b[0])/2+nx*t/2,(a[1]+b[1])/2+ny*t/2,len,t,{isStatic:true,angle:ang,friction:.15,restitution:.1});
+}
+const s1=Math.hypot(34,60);
+Composite.add(world,[
+  wall(P.nl,P.ns,-1,0), wall(P.ns,P.ls,-34/s1,-60/s1), wall(P.ls,P.lb,-1,0), wall(P.lb,P.rb,0,1),
+  wall(P.rs,P.rb,1,0), wall(P.nsr,P.rs,34/s1,-60/s1), wall(P.nr,P.nsr,1,0)
+]);
+const SOLID = {category:1,mask:0xFFFFFFFF,group:0}, GHOST = {category:1,mask:0,group:0};
+function makeSlip(k,x,y,a){
+  const b=Bodies.rectangle(x,y,SW,SH,{chamfer:{radius:6.4},angle:a,friction:.25,frictionAir:.015,restitution:.15,density:.002,sleepThreshold:40});
+  b.k=k; return b;
+}
+let slips=[];
+(function seed(){
+  const order=[]; for(let r=0;r<5;r++) order.push(...KEYS);
+  order.sort(()=>Math.random()-.5);
+  order.forEach((k,n)=>{ const c=n%5, r=Math.floor(n/5); slips.push(makeSlip(k,62+c*44+(r%2)*10,148+r*28,(Math.random()-.5)*1.2)); });
+  Composite.add(world,slips);
+  for(let i=0;i<300;i++) Engine.update(engine,1000/60);
+})();
+function wakeAll(){ for(const b of slips) Sleeping.set(b,false); }
+
+// inside the glass? (world coords)
+function inside(p){
+  if(p.y>390||p.y<36) return false;
+  if(p.y>=134) return p.x>36&&p.x<264;
+  if(p.y<=98) return p.x>96&&p.x<204;
+  const f=(p.y-98)/36, half=54+f*60;
+  return Math.abs(p.x-150)<half;
+}
+
+let outBody=null;          // slip currently out
+let held=null;             // {body, off, last:[{x,y,t}], start, moved}
+let stir=null, lift=null, hover=null, wobble=0;
+
+const cv=document.getElementById("jar"), ctx=cv.getContext("2d");
+function resize(){ const d=Math.min(devicePixelRatio||1,3); cv.width=VW*d; cv.height=VH*d; ctx.setTransform(d,0,0,d,0,0); }
+resize(); addEventListener("resize",resize);
+function toWorld(e){ const r=cv.getBoundingClientRect(); return {x:(e.clientX-r.left)/r.width*VW, y:(e.clientY-r.top)/r.height*VH}; }
+function toScreen(x,y){ const r=cv.getBoundingClientRect(); return {x:r.left+x/VW*r.width, y:r.top+y/VH*r.height, s:r.width/VW}; }
+
+// forgiving hit test: nearest slip within 22 units, top-most first
+function slipAt(p){
+  let best=null, bd=22;
+  for(const b of slips){
+    const dx=p.x-b.position.x, dy=p.y-b.position.y;
+    const c=Math.cos(-b.angle), s=Math.sin(-b.angle);
+    const lx=Math.max(0,Math.abs(dx*c-dy*s)-SW/2), ly=Math.max(0,Math.abs(dx*s+dy*c)-SH/2);
+    const d=Math.hypot(lx,ly);
+    if(d<bd||(d===0&&best&&b.position.y<best.position.y)){ bd=d; best=b; }
+  }
+  return best;
+}
+
+cv.addEventListener("pointerdown",e=>{
+  if(busy||lift) return;
+  e.preventDefault();
+  const p=toWorld(e); cv.setPointerCapture(e.pointerId);
+  const hit=slipAt(p);
+  if(hit){
+    Sleeping.set(hit,false);
+    hit.collisionFilter=GHOST;
+    held={body:hit, off:{x:hit.position.x-p.x,y:hit.position.y-p.y}, target:{...hit.position}, last:[{...p,t:performance.now()}], start:performance.now(), from:{...p}, moved:false};
+    wakeAll();
+  } else { stir={last:p}; wakeAll(); }
+});
+cv.addEventListener("pointermove",e=>{
+  const p=toWorld(e);
+  if(held){
+    held.target={x:p.x+held.off.x*.6, y:p.y+held.off.y*.6};
+    held.last.push({...p,t:performance.now()}); if(held.last.length>5) held.last.shift();
+    if(Math.hypot(p.x-held.from.x,p.y-held.from.y)>6) held.moved=true;
+    return;
+  }
+  if(stir){
+    const dx=p.x-stir.last.x, dy=p.y-stir.last.y;
+    for(const b of slips){ const d=Math.hypot(b.position.x-p.x,b.position.y-p.y); if(d<50){ const f=(1-d/50)*.3; Sleeping.set(b,false); Body.setVelocity(b,{x:b.velocity.x+dx*f,y:b.velocity.y+dy*f}); } }
+    stir.last=p; return;
+  }
+  hover = busy ? null : slipAt(p);
+  cv.style.cursor = hover ? "pointer" : "default";
+});
+function letGo(e){
+  stir=null;
+  if(!held) return;
+  const h=held; held=null; const b=h.body;
+  const quickTap = !h.moved && performance.now()-h.start<350;
+  if(quickTap){ liftOut(b); return; }
+  if(!inside(b.position)){ takeOut(b); return; }
+  // drop back in with the throw velocity
+  const a=h.last[0], z=h.last[h.last.length-1], dt=Math.max(16,z.t-a.t);
+  b.collisionFilter=SOLID;
+  Body.setVelocity(b,{x:Math.max(-12,Math.min(12,(z.x-a.x)/dt*16)), y:Math.max(-12,Math.min(12,(z.y-a.y)/dt*16))});
+}
+cv.addEventListener("pointerup",letGo); cv.addEventListener("pointercancel",letGo);
+cv.addEventListener("pointerleave",()=>{ if(!held) hover=null; });
+cv.addEventListener("keydown",e=>{ if(e.key==="Enter"||e.key===" "){ e.preventDefault(); takeOne(current); } });
+
+function hop(k){ for(const b of slips) if(b.k===k){ Sleeping.set(b,false); Body.setVelocity(b,{x:(Math.random()-.5)*2.5,y:-3.5-Math.random()*2.5}); } }
+document.getElementById("shake").onclick=()=>{
+  wobble=1; wakeAll();
+  for(const b of slips){ Body.setVelocity(b,{x:(Math.random()-.5)*8,y:-3-Math.random()*6}); Body.setAngularVelocity(b,(Math.random()-.5)*.35); }
+};
+document.getElementById("drawme").onclick=()=>takeOne(current);
+
+function takeOne(k){
+  if(busy||held||lift) return;
+  const key = k || KEYS[Math.floor(Math.random()*KEYS.length)];
+  const pool = slips.filter(b=>b.k===key); if(!pool.length) return;
+  liftOut(pool.reduce((a,b)=>a.position.y<b.position.y?a:b));
+}
+
+// smooth scripted lift out through the neck
+function liftOut(b){
+  if(reduce){ takeOut(b); return; }
+  busy=true; hover=null;
+  b.collisionFilter=GHOST; Sleeping.set(b,false);
+  lift={body:b, t:0, from:{...b.position}, a0:b.angle, dur:34};
+}
+function stepLift(){
+  const L=lift, b=L.body; L.t++;
+  const k=ease(Math.min(1,L.t/L.dur));
+  // quadratic curve: start -> neck centre -> above the rim
+  const c={x:150,y:110}, e={x:150,y:-14};
+  const x=(1-k)*(1-k)*L.from.x+2*(1-k)*k*c.x+k*k*e.x, y=(1-k)*(1-k)*L.from.y+2*(1-k)*k*c.y+k*k*e.y;
+  Body.setPosition(b,{x,y}); Body.setVelocity(b,{x:0,y:0}); Body.setAngle(b,L.a0*(1-k)+(-Math.PI/2)*k*0); Body.setAngularVelocity(b,0);
+  if(L.t>=L.dur){ lift=null; takeOut(b); }
+}
+
+function takeOut(b){
+  busy=true;
+  slips=slips.filter(x=>x!==b); Composite.remove(world,b); b.collisionFilter=SOLID;
+  wakeAll();
+  if(outBody) returnSlip();
+  outBody=b;
+  select(b.k);
+  const s={k:b.k,i:pickIndex(b.k)};
+  const pos = b.position.y<0 ? {x:b.position.x,y:4} : b.position;
+  flyTo(b.k,pos,b.angle,()=>{ open(s,false); busy=false; });
+}
+function returnSlip(){
+  if(!outBody) return;
+  const b=outBody; outBody=null;
+  Body.setPosition(b,{x:150+(Math.random()-.5)*30,y:44}); Body.setVelocity(b,{x:0,y:3}); Body.setAngle(b,(Math.random()-.5)*.8); Body.setAngularVelocity(b,0);
+  b.collisionFilter=SOLID; Composite.add(world,b); slips.push(b); wakeAll();
+}
+
+const rodTop=document.getElementById("rodTop");
+function flyTo(k,pos,angle,done){
+  closeScroll();
+  const from=toScreen(pos.x,pos.y), to=rodTop.getBoundingClientRect();
+  const offscreen = to.bottom<0 || to.top>innerHeight;
+  if(reduce||offscreen){ done(); if(offscreen) document.getElementById("scroll").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"}); return; }
+  const f=document.createElement("div"); f.className="flyer"; f.style.background=cssv("--"+k);
+  const w0=SW*from.s, h0=SH*from.s;
+  f.style.width=w0+"px"; f.style.height=h0+"px"; document.body.appendChild(f);
+  const x0=from.x-w0/2, y0=from.y-h0/2, x1=to.left, y1=to.top;
+  const mx=(x0+x1)/2, my=Math.min(y0,y1)-60;
+  const deg=angle*180/Math.PI;
+  const anim=f.animate([
+    {transform:`translate(${x0}px,${y0}px) rotate(${deg}deg)`, width:w0+"px", height:h0+"px", offset:0},
+    {transform:`translate(${mx}px,${my}px) rotate(${deg/3}deg)`, width:w0*1.4+"px", height:h0*1.2+"px", offset:.45},
+    {transform:`translate(${x1}px,${y1}px) rotate(0deg)`, width:to.width+"px", height:to.height+"px", offset:1}
+  ],{duration:620,easing:"cubic-bezier(.45,.05,.25,1)",fill:"forwards"});
+  anim.onfinish=()=>{ done(); requestAnimationFrame(()=>f.remove()); };
+}
+
+function stepPhysics(){
+  if(held){
+    const b=held.body, t=held.target;
+    const nx=b.position.x+(t.x-b.position.x)*.55, ny=b.position.y+(t.y-b.position.y)*.55;
+    Body.setVelocity(b,{x:nx-b.position.x,y:ny-b.position.y});
+    Body.setPosition(b,{x:nx,y:ny});
+    Body.setAngle(b,b.angle*.88); Body.setAngularVelocity(b,0);
+    // pulled clear of the rim: it's out
+    if(ny<26){ const h=held; held=null; takeOut(h.body); }
+  }
+  if(lift) stepLift();
+  Engine.update(engine,1000/60);
+  for(const b of slips){
+    if(held&&held.body===b || lift&&lift.body===b) continue;
+    const {x,y}=b.position;
+    if(x<30||x>270||y>396||y<30){ Body.setPosition(b,{x:150,y:50}); Body.setVelocity(b,{x:0,y:2}); }
+  }
+}
+
+/* drawing */
+function rr(x,y,w,h,r){ ctx.beginPath(); ctx.roundRect(x,y,w,h,r); }
+function drawSlip(k,x,y,a,alpha,scale){
+  ctx.save(); ctx.translate(x,y); ctx.rotate(a); ctx.scale(scale,scale); ctx.globalAlpha=alpha;
+  ctx.fillStyle=cssv("--"+k); rr(-SW/2,-SH/2,SW,SH,SH/2); ctx.fill();
+  ctx.fillStyle="rgba(255,255,255,.38)"; rr(-SW/2+5,-SH/2+2.5,SW-10,3,1.5); ctx.fill();
+  ctx.fillStyle="rgba(0,0,0,.13)";
+  ctx.beginPath(); ctx.ellipse(-SW/2+4,0,2.4,SH/2-1.5,0,0,7); ctx.fill();
+  ctx.beginPath(); ctx.ellipse(SW/2-4,0,2.4,SH/2-1.5,0,0,7); ctx.fill();
+  ctx.restore();
+}
+function glassPath(){
+  ctx.beginPath();
+  ctx.moveTo(P.nl[0],P.nl[1]-4); ctx.lineTo(P.ns[0],P.ns[1]-8);
+  ctx.quadraticCurveTo(P.ns[0],P.ns[1]+6,P.ls[0]+16,P.ls[1]-8);
+  ctx.quadraticCurveTo(P.ls[0],P.ls[1],P.ls[0],P.ls[1]+18);
+  ctx.lineTo(P.lb[0],P.lb[1]-22); ctx.quadraticCurveTo(P.lb[0],P.lb[1],P.lb[0]+22,P.lb[1]);
+  ctx.lineTo(P.rb[0]-22,P.rb[1]); ctx.quadraticCurveTo(P.rb[0],P.rb[1],P.rb[0],P.rb[1]-22);
+  ctx.lineTo(P.rs[0],P.rs[1]+18); ctx.quadraticCurveTo(P.rs[0],P.rs[1],P.rs[0]-16,P.rs[1]-8);
+  ctx.quadraticCurveTo(P.nsr[0],P.nsr[1]+6,P.nsr[0],P.nsr[1]-8); ctx.lineTo(P.nr[0],P.nr[1]-4);
+}
+let last=0, acc=0, hoverGlow=0;
+function frame(t){
+  const dt=last?Math.min(50,t-last):16.7; last=t; acc+=dt;
+  while(acc>=1000/60){ stepPhysics(); acc-=1000/60; }
+  ctx.clearRect(0,0,VW,VH);
+  wobble=Math.max(0,wobble-.02);
+  hoverGlow += ((hover?1:0)-hoverGlow)*.25;
+  ctx.save(); ctx.translate(150,395); ctx.rotate(Math.sin(t/55)*.05*wobble); ctx.translate(-150,-395);
+  ctx.fillStyle="rgba(0,0,0,.12)"; ctx.beginPath(); ctx.ellipse(150,394,118,6,0,0,7); ctx.fill();
+  glassPath(); ctx.fillStyle=cssv("--glass"); ctx.fill();
+  const front = held?held.body : lift?lift.body : null;
+  for(const b of slips){
+    if(b===front) continue;
+    const dim = current && b.k!==current;
+    const sc = b===hover ? 1+.12*hoverGlow : 1;
+    drawSlip(b.k,b.position.x,b.position.y-(b===hover?2*hoverGlow:0),b.angle, dim?.45:1, sc);
+  }
+  glassPath(); ctx.lineWidth=2.2; ctx.strokeStyle=cssv("--glass-edge"); ctx.stroke();
+  ctx.fillStyle=cssv("--shine"); rr(48,150,9,190,4.5); ctx.fill(); rr(62,160,4,70,2); ctx.fill();
+  ctx.strokeStyle=cssv("--glass-edge"); ctx.lineWidth=2.2; rr(88,26,124,12,6); ctx.stroke();
+  ctx.strokeStyle=cssv("--twine"); ctx.lineWidth=2.5;
+  for(let i=0;i<3;i++){ ctx.beginPath(); ctx.moveTo(95,56+i*5); ctx.lineTo(205,56+i*5); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(204,62); ctx.quadraticCurveTo(222,74,214,96); ctx.moveTo(204,62); ctx.quadraticCurveTo(228,66,232,84); ctx.stroke();
+  ctx.restore();
+  // the slip in your hand sits in front of the glass
+  if(front){
+    ctx.save(); ctx.shadowColor="rgba(0,0,0,.25)"; ctx.shadowBlur=8; ctx.shadowOffsetY=3;
+    drawSlip(front.k,front.position.x,front.position.y,front.angle,1,1.12); ctx.restore();
+  }
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+/* ---------- the slip you took out ---------- */
+const scroll=document.getElementById("scroll"), paper=document.getElementById("paper"), roll=document.getElementById("roll"), actions=document.getElementById("actions");
+let p=1, anim=null;
+function tidy(s){ s=s.trim(); return /[.!?"'”’)\]]$/.test(s) ? s : s+"."; }
+function refOf(v){ const m=v.r.match(/^(.*) (\d+:\d+)$/); return {surah:m[1], ref:m[2]}; }
+function setP(v){
+  p=Math.max(0,Math.min(1,v));
+  scroll.style.setProperty("--p",p);
+  roll.style.transform=`translateY(${p*paper.offsetHeight}px)`;
+  actions.classList.toggle("off",p<.98);
+}
+function animateTo(target,ms,cb){
+  cancelAnimationFrame(anim);
+  if(reduce){ setP(target); cb&&cb(); return; }
+  const from=p, start=performance.now();
+  const go=now=>{ const k=Math.min(1,(now-start)/ms); setP(from+(target-from)*ease(k)); if(k<1) anim=requestAnimationFrame(go); else cb&&cb(); };
+  anim=requestAnimationFrame(go);
+}
+function closeScroll(){ animateTo(0,260); }
+function isSaved(s){ return saved.some(x=>x.k===s.k&&x.i===s.i); }
+
+function open(s, instant){
+  const v=DATA[s.k][s.i], {surah,ref}=refOf(v);
+  scroll.style.setProperty("--c",`var(--${s.k})`);
+  paper.innerHTML=`
+    <p class="tag">…when you feel ${NAME[s.k].toLowerCase()}</p>
+    <p class="ar" lang="ar">${v.ar}</p>
+    <p class="en">${tidy(v.en)}</p>
+    <p class="reflect"><span>Reflect</span>${REFLECT[s.k]}</p>
+    <div class="ref"><span>Surah <b>${surah}</b> · <b>${ref}</b></span><span>${NAME[s.k]} slip</span></div>`;
+  const url="https://quran.com/"+ref.replace(":","/");
+  actions.innerHTML=`
+    <button class="btn primary" id="again">Draw another</button>
+    <button class="btn" id="save" aria-pressed="${isSaved(s)}">${isSaved(s)?"♥ Saved":"♡ Save"}</button>
+    <button class="btn" id="back">Put it back</button>
+    <button class="btn" id="copy">Copy</button>
+    <a class="btn" href="${url}" target="_blank" rel="noopener">Read in context ↗</a>`;
+  document.getElementById("again").onclick=()=>takeOne(current);
+  document.getElementById("back").onclick=()=>{ if(!outBody) return; returnSlip(); hop(s.k); animateTo(0,350); Nasheed.off(); };
+  const sv=document.getElementById("save");
+  sv.onclick=()=>{
+    if(isSaved(s)) saved=saved.filter(x=>!(x.k===s.k&&x.i===s.i)); else saved.unshift({k:s.k,i:s.i});
+    store.set("rmw-saved",saved);
+    sv.setAttribute("aria-pressed",isSaved(s)); sv.textContent=isSaved(s)?"♥ Saved":"♡ Save"; renderList();
+  };
+  const cp=document.getElementById("copy");
+  cp.onclick=()=>{
+    const txt=`${v.ar}\n\n${tidy(v.en)}\n— Quran ${ref} (${surah})`;
+    navigator.clipboard.writeText(txt).then(()=>{cp.textContent="Copied";setTimeout(()=>cp.textContent="Copy",1500);})
+      .catch(()=>{const r=document.createRange();r.selectNodeContents(paper);const sel=getSelection();sel.removeAllRanges();sel.addRange(r);cp.textContent="Selected, press ⌘C";});
+  };
+  if(!history.length || history[0].k!==s.k || history[0].i!==s.i){ history.unshift({...s}); history=history.slice(0,24); }
+  renderList();
+  if(instant){ cancelAnimationFrame(anim); setP(1); }
+  else { setP(0); animateTo(1,900); }
+  Nasheed.onSlip(s.k);
+}
+
+/* ---------- background nasheed for sad slips ---------- */
+const Nasheed = (()=>{
+  const el=document.getElementById("sound"), label=document.getElementById("soundLabel"), toggle=document.getElementById("soundToggle"), file=document.getElementById("ownTrack"), ownLabel=document.getElementById("ownLabel");
+  // nasheeds published next to this page, and which feelings play each one
+  const TRACKS={
+    calm:{src:"nasheed.mp3", title:"Allahu Ya Lamu", feelings:["sad","anxious","lonely","angry","guilty","lost"], vol:.6},
+    happy:{src:"happy.mp3", title:"Be Happy · Othman Al Ibrahim", feelings:["grateful","happy"], vol:.5}
+  };
+  for(const t of Object.values(TRACKS)){ t.audio=new Audio(t.src); t.audio.loop=true; t.audio.preload="auto"; t.audio.volume=0; t.custom=false; }
+  const trackFor=k=>Object.values(TRACKS).find(t=>t.feelings.includes(k))||null;
+  let muted = store.get("rmw-muted", false);
+  let cur=null;       // track for the open slip, or null
+  let unlocked=false;
+
+  function fade(t,to,cb){
+    clearInterval(t.fadeT); const a=t.audio;
+    t.fadeT=setInterval(()=>{
+      const d=to-a.volume;
+      if(Math.abs(d)<=.04){ a.volume=to; clearInterval(t.fadeT); cb&&cb(); }
+      else a.volume=Math.max(0,Math.min(1,a.volume+Math.sign(d)*.04));
+    },50);
+  }
+  function play(t){ const a=t.audio; a.play().then(()=>fade(t,t.vol)).catch(()=>{}); }
+  function stop(t){ if(t) fade(t,0,()=>t.audio.pause()); }
+  // Safari only lets audio play later if it was started from a tap, so prime both tracks on the first tap
+  function unlock(){
+    if(unlocked) return; unlocked=true;
+    for(const t of Object.values(TRACKS)){
+      if(t===cur||!t.audio.paused) continue;
+      const a=t.audio; a.muted=true;
+      a.play().then(()=>{ if(t!==cur) a.pause(); a.muted=false; }).catch(()=>{ a.muted=false; });
+    }
+  }
+  function ui(){
+    el.hidden=!cur;
+    if(!cur) return;
+    el.classList.toggle("paused",muted);
+    toggle.textContent=muted?"Play":"Pause";
+    label.textContent=`${muted?"Paused":"Playing"}: ${cur.title}`;
+    ownLabel.textContent="Use a different nasheed";
+  }
+  toggle.onclick=()=>{ unlock(); muted=!muted; store.set("rmw-muted",muted); if(cur){ muted?stop(cur):play(cur); } ui(); };
+  // swap the nasheed for the feelings that share the open slip's track (this visit only)
+  file.onchange=()=>{
+    const f=file.files&&file.files[0]; if(!f||!cur) return;
+    const t=cur; clearInterval(t.fadeT); t.audio.pause();
+    if(t.custom) URL.revokeObjectURL(t.audio.src);
+    t.audio=new Audio(URL.createObjectURL(f)); t.audio.loop=true; t.audio.volume=0; t.custom=true;
+    t.title=f.name.replace(/\.[^.]+$/,"");
+    muted=false; store.set("rmw-muted",false); play(t); ui(); file.value="";
+  };
+  addEventListener("pointerdown",unlock,{capture:true,once:true});
+  addEventListener("keydown",unlock,{capture:true,once:true});
+  return {
+    onSlip(k){
+      const next=trackFor(k);
+      if(next!==cur){ stop(cur); cur=next; if(cur){ el.style.setProperty("--c",`var(--${k})`); if(!muted) play(cur); } }
+      else if(cur){ el.style.setProperty("--c",`var(--${k})`); if(!muted&&cur.audio.paused) play(cur); }
+      ui();
+    },
+    off(){ stop(cur); cur=null; ui(); }
+  };
+})();
+addEventListener("resize",()=>setP(p));
+
+/* ---------- your slips ---------- */
+const list=document.getElementById("list"), tH=document.getElementById("tab-hist"), tS=document.getElementById("tab-saved");
+tH.onclick=()=>{tab="hist";renderList();}; tS.onclick=()=>{tab="saved";renderList();};
+function renderList(){
+  tH.setAttribute("aria-selected",tab==="hist"); tS.setAttribute("aria-selected",tab==="saved");
+  tH.textContent=`This visit (${history.length})`; tS.textContent=`Saved (${saved.length})`;
+  const items = tab==="hist"?history:saved;
+  if(!items.length){ list.innerHTML=`<p class="none">${tab==="hist"?"Slips you take out will collect here.":"Tap ♡ Save on a slip to keep it here for next time."}</p>`; return; }
+  list.innerHTML="";
+  for(const s of items){
+    const v=DATA[s.k]?.[s.i]; if(!v) continue;
+    const b=document.createElement("button"); b.className="chip"; b.style.setProperty("--c",`var(--${s.k})`);
+    b.innerHTML=`<i></i>${refOf(v).ref} <span style="color:var(--muted)">${NAME[s.k]}</span>`;
+    b.onclick=()=>{ select(s.k); setP(0); requestAnimationFrame(()=>open(s,false)); };
+    list.appendChild(b);
+  }
+}
+
+// Open in a working state: one anxious slip already out and unrolled
+(function start(){
+  const b=slips.find(x=>x.k==="anxious");
+  Composite.remove(world,b); slips=slips.filter(x=>x!==b); outBody=b; wakeAll();
+  select("anxious"); seen.anxious=[0]; open({k:"anxious",i:0},true);
+})();
+</script>
