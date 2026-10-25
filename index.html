@@ -17,7 +17,10 @@ header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-be
 h1{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,4vw,2.6rem);margin:0;letter-spacing:.01em;text-wrap:balance}
 header p{margin:0;color:var(--muted);max-width:46ch;font-size:.95rem}
 .stage{display:grid;grid-template-columns:minmax(0,350px) minmax(0,1fr);gap:36px;align-items:start}
-@media (max-width:780px){.stage{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:780px){.stage{grid-template-columns:minmax(0,1fr);gap:24px}.jarbox{width:min(270px,72vw)}.wrap{padding-block:18px 40px;gap:18px}}
+button,.btn,.feel,.chip,label.btn,canvas#jar{-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+canvas#jar{touch-action:none}
+@media (hover:none){.feel:hover{transform:none}.btn:hover{background:transparent}.btn.primary:hover{background:var(--accent)}}
 .left{display:grid;gap:16px;justify-items:center}
 .jarbox{position:relative;width:min(320px,84vw);aspect-ratio:3/4}
 canvas#jar{width:100%;height:100%;display:block;touch-action:none;border-radius:12px;-webkit-user-select:none;user-select:none}
@@ -328,7 +331,13 @@ function takeOut(b){
   select(b.k);
   const s={k:b.k,i:pickIndex(b.k)};
   const pos = b.position.y<0 ? {x:b.position.x,y:4} : b.position;
-  flyTo(b.k,pos,b.angle,()=>{ open(s,false); busy=false; });
+  flyTo(b.k,pos,b.angle,()=>{
+    open(s,false); busy=false;
+    if(matchMedia("(max-width:780px)").matches){
+      const r=document.getElementById("scroll").getBoundingClientRect();
+      if(r.top>innerHeight*.55||r.top<0) setTimeout(()=>document.getElementById("scroll").scrollIntoView({behavior:reduce?"auto":"smooth",block:"start"}),120);
+    }
+  });
 }
 function returnSlip(){
   if(!outBody) return;
@@ -502,23 +511,32 @@ const Nasheed = (()=>{
   let cur=null;       // track for the open slip, or null
   let unlocked=false;
 
+  // Time-based fade. iPhone Safari ignores audio.volume, so the fade can never be
+  // trusted to reach its target there: after the fade time we always finish
+  // (pause on fade-out) whatever the volume says.
   function fade(t,to,cb){
-    clearInterval(t.fadeT); const a=t.audio;
+    clearInterval(t.fadeT); clearTimeout(t.doneT);
+    const a=t.audio, from=a.volume, start=performance.now(), ms=700;
+    const finish=()=>{ clearInterval(t.fadeT); try{ a.volume=to; }catch(e){} cb&&cb(); };
     t.fadeT=setInterval(()=>{
-      const d=to-a.volume;
-      if(Math.abs(d)<=.04){ a.volume=to; clearInterval(t.fadeT); cb&&cb(); }
-      else a.volume=Math.max(0,Math.min(1,a.volume+Math.sign(d)*.04));
-    },50);
+      const k=Math.min(1,(performance.now()-start)/ms);
+      try{ a.volume=Math.max(0,Math.min(1,from+(to-from)*k)); }catch(e){}
+      if(k>=1) finish();
+    },40);
+    t.doneT=setTimeout(finish,ms+150);   // backup if the interval is throttled
   }
-  function play(t){ const a=t.audio; a.play().then(()=>fade(t,t.vol)).catch(()=>{}); }
-  function stop(t){ if(t) fade(t,0,()=>t.audio.pause()); }
+  function play(t){
+    t.want=true; const a=t.audio;
+    a.play().then(()=>{ if(t.want) fade(t,t.vol); else a.pause(); }).catch(()=>{});
+  }
+  function stop(t){ if(!t) return; t.want=false; fade(t,0,()=>{ if(!t.want) t.audio.pause(); }); }
   // Safari only lets audio play later if it was started from a tap, so prime both tracks on the first tap
   function unlock(){
     if(unlocked) return; unlocked=true;
     for(const t of Object.values(TRACKS)){
-      if(t===cur||!t.audio.paused) continue;
+      if(t.want||!t.audio.paused) continue;
       const a=t.audio; a.muted=true;
-      a.play().then(()=>{ if(t!==cur) a.pause(); a.muted=false; }).catch(()=>{ a.muted=false; });
+      a.play().then(()=>{ if(!t.want) a.pause(); a.muted=false; }).catch(()=>{ a.muted=false; });
     }
   }
   function ui(){
@@ -541,6 +559,10 @@ const Nasheed = (()=>{
   };
   addEventListener("pointerdown",unlock,{capture:true,once:true});
   addEventListener("keydown",unlock,{capture:true,once:true});
+  document.addEventListener("visibilitychange",()=>{
+    if(document.hidden){ for(const t of Object.values(TRACKS)){ clearInterval(t.fadeT); clearTimeout(t.doneT); t.audio.pause(); } }
+    else if(cur&&!muted) play(cur);
+  });
   return {
     onSlip(k){
       const next=trackFor(k);
