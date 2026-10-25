@@ -1,3 +1,11 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#141b1a" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#eef1ee" media="(prefers-color-scheme: light)">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}img{max-width:100%}</style>
 <title>Read Me When</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Amiri+Quran&family=Caveat:wght@500;700&family=Marcellus&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
@@ -11,7 +19,10 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141b1a;--table:#1d2726;--ink:#e7ece9;--muted:#9aa8a5;--glass:rgba(220,240,235,.06);--glass-edge:rgba(220,240,235,.26);--shine:rgba(255,255,255,.18);--accent:#6cc4ae;--on-accent:#0f1716;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#141b1a;--table:#1d2726;--ink:#e7ece9;--muted:#9aa8a5;--glass:rgba(220,240,235,.06);--glass-edge:rgba(220,240,235,.26);--shine:rgba(255,255,255,.18);--accent:#6cc4ae;--on-accent:#0f1716;color-scheme:dark}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
+*,*::before,*::after{box-sizing:border-box}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55}
 .wrap{max-width:1060px;margin:0 auto;padding-inline:20px;padding-block:28px 48px;display:grid;gap:26px}
 header{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:8px 24px}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(1.9rem,4vw,2.6rem);margin:0;letter-spacing:.01em;text-wrap:balance}
@@ -82,6 +93,9 @@ label.btn{cursor:pointer}
 footer{color:var(--muted);font-size:.8rem;border-top:1px solid var(--glass-edge);padding-top:14px}
 @media (prefers-reduced-motion:reduce){.feel,.rod,.actions{transition:none}.eq i{animation:none;height:60%}}
 </style>
+</head>
+<body>
+
 
 <div class="wrap">
   <header>
@@ -460,7 +474,7 @@ function animateTo(target,ms,cb){
 function closeScroll(){ animateTo(0,260); }
 function isSaved(s){ return saved.some(x=>x.k===s.k&&x.i===s.i); }
 
-function open(s, instant){
+function open(s, instant, quiet){
   const v=DATA[s.k][s.i], {surah,ref}=refOf(v);
   scroll.style.setProperty("--c",`var(--${s.k})`);
   paper.innerHTML=`
@@ -494,7 +508,7 @@ function open(s, instant){
   renderList();
   if(instant){ cancelAnimationFrame(anim); setP(1); }
   else { setP(0); animateTo(1,900); }
-  Nasheed.onSlip(s.k);
+  Nasheed.onSlip(s.k, !quiet);
 }
 
 /* ---------- background nasheed for sad slips ---------- */
@@ -502,75 +516,107 @@ const Nasheed = (()=>{
   const el=document.getElementById("sound"), label=document.getElementById("soundLabel"), toggle=document.getElementById("soundToggle"), file=document.getElementById("ownTrack"), ownLabel=document.getElementById("ownLabel");
   // nasheeds published next to this page, and which feelings play each one
   const TRACKS={
-    calm:{src:"nasheed.mp3", title:"Allahu Ya Lamu", feelings:["sad","anxious","lonely","angry","guilty","lost"], vol:.6},
-    happy:{src:"happy.mp3", title:"Be Happy · Othman Al Ibrahim", feelings:["grateful","happy"], vol:.5}
+    calm:{key:"calm", src:"nasheed.mp3", title:"Allahu Ya Lamu", feelings:["sad","anxious","lonely","angry","guilty","lost"], vol:.6, pos:0},
+    happy:{key:"happy", src:"happy.mp3", title:"Be Happy · Othman Al Ibrahim", feelings:["grateful","happy"], vol:.5, pos:0}
   };
-  for(const t of Object.values(TRACKS)){ t.audio=new Audio(t.src); t.audio.loop=true; t.audio.preload="auto"; t.audio.volume=0; t.custom=false; }
   const trackFor=k=>Object.values(TRACKS).find(t=>t.feelings.includes(k))||null;
-  let muted = store.get("rmw-muted", false);
-  let cur=null;       // track for the open slip, or null
-  let unlocked=false;
+  // One player for everything, so two nasheeds can never play at the same time.
+  const player=new Audio(); player.loop=true; player.preload="auto";
+  let loaded=null;            // track whose file is in the player
+  let cur=null;               // track for the open slip
+  let muted=store.get("rmw-muted",false);
+  let started=false;          // sound only starts after the viewer has tapped something
+  let token=0, fadeT=null, doneT=null;
 
-  // Time-based fade. iPhone Safari ignores audio.volume, so the fade can never be
-  // trusted to reach its target there: after the fade time we always finish
-  // (pause on fade-out) whatever the volume says.
-  function fade(t,to,cb){
-    clearInterval(t.fadeT); clearTimeout(t.doneT);
-    const a=t.audio, from=a.volume, start=performance.now(), ms=700;
-    const finish=()=>{ clearInterval(t.fadeT); try{ a.volume=to; }catch(e){} cb&&cb(); };
-    t.fadeT=setInterval(()=>{
-      const k=Math.min(1,(performance.now()-start)/ms);
-      try{ a.volume=Math.max(0,Math.min(1,from+(to-from)*k)); }catch(e){}
-      if(k>=1) finish();
-    },40);
-    t.doneT=setTimeout(finish,ms+150);   // backup if the interval is throttled
+  function setVol(v){ try{ player.volume=Math.max(0,Math.min(1,v)); }catch(e){} }
+  // Time-based fade. iPhone Safari ignores volume changes, so we never wait for the
+  // volume to arrive: after the fade time we finish regardless.
+  function fade(to,cb){
+    clearInterval(fadeT); clearTimeout(doneT);
+    const from=player.volume, t0=performance.now(), ms=600;
+    let done=false;
+    const finish=()=>{ if(done) return; done=true; clearInterval(fadeT); clearTimeout(doneT); setVol(to); cb&&cb(); };
+    fadeT=setInterval(()=>{ const k=Math.min(1,(performance.now()-t0)/ms); setVol(from+(to-from)*k); if(k>=1) finish(); },40);
+    doneT=setTimeout(finish,ms+150);
   }
-  function play(t){
-    t.want=true; const a=t.audio;
-    a.play().then(()=>{ if(t.want) fade(t,t.vol); else a.pause(); }).catch(()=>{});
+  function load(t){
+    if(loaded===t) return;
+    if(loaded) loaded.pos=player.currentTime||0;
+    loaded=t; player.src=t.src;
+    const p=t.pos;
+    if(p) player.addEventListener("loadedmetadata",()=>{ try{ player.currentTime=p; }catch(e){} },{once:true});
   }
-  function stop(t){ if(!t) return; t.want=false; fade(t,0,()=>{ if(!t.want) t.audio.pause(); }); }
-  // Safari only lets audio play later if it was started from a tap, so prime both tracks on the first tap
-  function unlock(){
-    if(unlocked) return; unlocked=true;
-    for(const t of Object.values(TRACKS)){
-      if(t.want||!t.audio.paused) continue;
-      const a=t.audio; a.muted=true;
-      a.play().then(()=>{ if(!t.want) a.pause(); a.muted=false; }).catch(()=>{ a.muted=false; });
+  // Bring the player in line with what should be playing right now.
+  function sync(){
+    const my=++token;
+    const want=(started&&!muted&&cur)?cur:null;
+    if(!want){
+      if(player.paused) return ui();
+      fade(0,()=>{ if(my===token) player.pause(); });
+      return ui();
     }
+    if(loaded!==want && !player.paused){
+      // fade the other nasheed out first, then switch
+      fade(0,()=>{ if(my!==token) return; player.pause(); start(want,my); });
+      return ui();
+    }
+    start(want,my); ui();
+  }
+  function start(t,my){
+    load(t);
+    if(!player.paused){ fade(t.vol); return; }
+    setVol(0);
+    player.play().then(()=>{ if(my===token) fade(t.vol); else player.pause(); })
+      .catch(()=>{ if(my===token){ started=false; ui(); } });
   }
   function ui(){
     el.hidden=!cur;
     if(!cur) return;
-    el.classList.toggle("paused",muted);
-    toggle.textContent=muted?"Play":"Pause";
-    label.textContent=`${muted?"Paused":"Playing"}: ${cur.title}`;
+    const playing=started&&!muted;
+    el.classList.toggle("paused",!playing);
+    toggle.textContent=playing?"Pause":"Play";
+    label.textContent=`${playing?"Playing":"Nasheed"}: ${cur.title}`;
     ownLabel.textContent="Use a different nasheed";
   }
-  toggle.onclick=()=>{ unlock(); muted=!muted; store.set("rmw-muted",muted); if(cur){ muted?stop(cur):play(cur); } ui(); };
+  toggle.onclick=()=>{
+    if(started&&!muted){ muted=true; }
+    else { muted=false; started=true; }
+    store.set("rmw-muted",muted); sync();
+  };
   // swap the nasheed for the feelings that share the open slip's track (this visit only)
   file.onchange=()=>{
     const f=file.files&&file.files[0]; if(!f||!cur) return;
-    const t=cur; clearInterval(t.fadeT); t.audio.pause();
-    if(t.custom) URL.revokeObjectURL(t.audio.src);
-    t.audio=new Audio(URL.createObjectURL(f)); t.audio.loop=true; t.audio.volume=0; t.custom=true;
-    t.title=f.name.replace(/\.[^.]+$/,"");
-    muted=false; store.set("rmw-muted",false); play(t); ui(); file.value="";
+    const t=cur; if(t.custom) URL.revokeObjectURL(t.src);
+    t.src=URL.createObjectURL(f); t.custom=true; t.pos=0; t.title=f.name.replace(/\.[^.]+$/,"");
+    if(loaded===t){ player.pause(); loaded=null; }
+    muted=false; started=true; store.set("rmw-muted",false); sync(); file.value="";
   };
-  addEventListener("pointerdown",unlock,{capture:true,once:true});
-  addEventListener("keydown",unlock,{capture:true,once:true});
+  // iPhone only lets a page play sound later if playback was first started from a tap,
+  // so prime the (silent) player on the first tap
+  let primed=false;
+  function prime(){
+    if(primed) return; primed=true;
+    if(!player.paused) return;
+    load(cur||TRACKS.calm);
+    player.muted=true;
+    player.play().then(()=>{ if(!(started&&!muted&&cur)) player.pause(); player.muted=false; })
+      .catch(()=>{ player.muted=false; });
+  }
+  addEventListener("pointerdown",prime,{capture:true,once:true});
+  addEventListener("keydown",prime,{capture:true,once:true});
   document.addEventListener("visibilitychange",()=>{
-    if(document.hidden){ for(const t of Object.values(TRACKS)){ clearInterval(t.fadeT); clearTimeout(t.doneT); t.audio.pause(); } }
-    else if(cur&&!muted) play(cur);
+    if(document.hidden){ ++token; clearInterval(fadeT); clearTimeout(doneT); player.pause(); }
+    else sync();
   });
   return {
-    onSlip(k){
-      const next=trackFor(k);
-      if(next!==cur){ stop(cur); cur=next; if(cur){ el.style.setProperty("--c",`var(--${k})`); if(!muted) play(cur); } }
-      else if(cur){ el.style.setProperty("--c",`var(--${k})`); if(!muted&&cur.audio.paused) play(cur); }
-      ui();
+    // fromUser: the slip was opened by a tap, so sound may start
+    onSlip(k,fromUser=true){
+      cur=trackFor(k);
+      if(fromUser&&cur) started=true;
+      el.style.setProperty("--c",`var(--${k})`);
+      sync();
     },
-    off(){ stop(cur); cur=null; ui(); }
+    off(){ cur=null; sync(); }
   };
 })();
 addEventListener("resize",()=>setP(p));
@@ -597,6 +643,9 @@ function renderList(){
 (function start(){
   const b=slips.find(x=>x.k==="anxious");
   Composite.remove(world,b); slips=slips.filter(x=>x!==b); outBody=b; wakeAll();
-  select("anxious"); seen.anxious=[0]; open({k:"anxious",i:0},true);
+  select("anxious"); seen.anxious=[0]; open({k:"anxious",i:0},true,true);
 })();
 </script>
+
+</body>
+</html>
